@@ -3,9 +3,10 @@ import { useRecoilValue } from 'recoil';
 
 import { characterDataOtherActionSelectors } from '@/store/character';
 
-import CharacterImage from '@/component/characterImage';
-
 import { CharacterAction } from '@/mapping/characterAction';
+import dynamic from 'next/dynamic';
+
+const CharacterImage = dynamic(() => import('@/component/characterImage'), { ssr: false });
 
 interface CharacterProps {
   action: CharacterAction;

@@ -6,8 +6,8 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
-import Initializer from '@/component/initializer';
-import CharacterActionList from '@/component/character/characterActionList';
+import Initializer from '@/components/initializer';
+import CharacterActionList from '@/components/character/characterActionList';
 
 export default function Home() {
   return (

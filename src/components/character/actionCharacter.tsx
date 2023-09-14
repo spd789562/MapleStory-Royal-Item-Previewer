@@ -6,7 +6,7 @@ import { characterDataOtherActionSelectors } from '@/store/character';
 import { CharacterAction } from '@/mapping/characterAction';
 import dynamic from 'next/dynamic';
 
-const CharacterImage = dynamic(() => import('@/component/characterImage'), { ssr: false });
+const CharacterImage = dynamic(() => import('@/components/characterImage'), { ssr: false });
 
 interface CharacterProps {
   action: CharacterAction;

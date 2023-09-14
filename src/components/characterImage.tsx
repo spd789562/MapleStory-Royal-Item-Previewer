@@ -28,9 +28,9 @@ function CharacterImage({ data: characterData, name }: CharacterImageProps) {
   }, [characterData]);
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full grid justify-center items-center" style={{ minHeight: 100 }}>
       {isLoaded && webp ? (
-        <img className="w-full h-full" src={webp} alt={name || 'character image'} />
+        <img src={webp} alt={name || 'character image'} />
       ) : (
         <Skeleton variant="rectangular" width="100%" height={100} />
       )}

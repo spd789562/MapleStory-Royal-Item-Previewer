@@ -19,9 +19,9 @@ function CharacterImage({ data: characterData, name }: CharacterImageProps) {
       setIsLoaded(false);
       const abortId = new Date().getTime();
       abortIdRef.current = abortId;
-      getWebPFromCharacterData(characterData).then((base64) => {
+      getWebPFromCharacterData(characterData).then((data) => {
         if (abortIdRef.current !== abortId) return;
-        setWebp(base64);
+        setWebp(data.url);
         setIsLoaded(true);
       });
     }

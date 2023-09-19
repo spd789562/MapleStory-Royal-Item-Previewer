@@ -16,25 +16,44 @@ const actions = [
   CharacterAction.Ladder,
   CharacterAction.Fly,
   CharacterAction.ProneStab,
+
   CharacterAction.Shoot1,
   CharacterAction.Shoot2,
   CharacterAction.ShootF,
+
   CharacterAction.StabO1,
   CharacterAction.StabO2,
   CharacterAction.StabOF,
+
   CharacterAction.StabT1,
   CharacterAction.StabT2,
   CharacterAction.StabTF,
+
+  CharacterAction.SwingO1,
+  CharacterAction.SwingO2,
+  CharacterAction.SwingO3,
+  CharacterAction.SwingOF,
+
+  CharacterAction.SwingP1,
+  CharacterAction.SwingP2,
+  CharacterAction.SwingPF,
+
+  CharacterAction.SwingT1,
+  CharacterAction.SwingT2,
+  CharacterAction.SwingT3,
+  CharacterAction.SwingTF,
 ];
 
 function CharacterActionList() {
   return (
-    <Grid container spacing={2}>
+    <Grid container spacing={2} alignItems="stretch">
       {actions.map((action) => (
-        <Grid key={action} item xs={12} sm={4} md={3} lg={2}>
+        <Grid key={action} item xs={12} sm={4} md={3} lg={2} p={2}>
           <Paper>
+            <Typography variant="h6" px={1}>
+              {action}
+            </Typography>
             <ActionCharacter action={action} />
-            <Typography variant="h6">{action}</Typography>
           </Paper>
         </Grid>
       ))}

@@ -18,6 +18,15 @@ MapleStoryJs.CharacterRenderer = new CharacterRenderer(MapleStoryJs.ItemUtilitie
 /* @ts-ignore */
 MapleStoryJs.ItemUtilities = new ItemUtilities(MapleStoryJs.DataFactory);
 
+MapleStoryJs.Network.RegisterEventMonitor((moniter) => {
+  console.log('moniter create:', moniter.Name);
+  moniter.RegisterNotifyOnComplete((monitor) => {
+    console.log('moniter complete:', monitor.Name);
+    return null;
+  });
+  return null;
+});
+
 export interface CharacterFrame {
   canvas: HTMLCanvasElement;
   frame: RenderPlan;
@@ -49,10 +58,13 @@ export async function getWebPFromCharacterData(data: CharacterData) {
     },
   }));
 
-  return generateWebPFromFrames(frames, {
-    width: plan.width,
-    height: plan.height,
-  });
+  return {
+    url: await generateWebPFromFrames(frames, {
+      width: plan.width,
+      height: plan.height,
+    }),
+    frames,
+  };
 }
 
 export default MapleStoryJs;

@@ -64,6 +64,10 @@ export async function getWebPFromCharacterData(data: CharacterData) {
       height: plan.height,
     }),
     frames,
+    size: {
+      width: plan.width,
+      height: plan.height,
+    },
   };
 }
 

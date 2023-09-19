@@ -7,6 +7,7 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
 import Initializer from '@/components/initializer';
+import CurrentCharacter from '@/components/character/currentCharacter';
 import CharacterActionList from '@/components/character/characterActionList';
 
 export default function Home() {
@@ -20,6 +21,7 @@ export default function Home() {
       <main className="p-2 pt-4">
         <Initializer />
         <Container>
+          <CurrentCharacter />
           <Typography variant="h5">角色動作</Typography>
           <Box>
             <CharacterActionList />

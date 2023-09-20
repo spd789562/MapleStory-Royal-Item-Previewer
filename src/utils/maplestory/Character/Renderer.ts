@@ -41,7 +41,7 @@ export default class CharacterRenderer implements IGenerateRenderPlans, IGenerat
       hashPieces,
       Object.keys(request.selectedItems).map((itemName) => {
         const item = request.selectedItems[itemName];
-        return [item.id, item.frame, item.action, item.version, item.region].join(',');
+        return [item.id, item.frame, item.action, item.version, item.region, item.hue || 0].join(',');
       }),
     );
 

@@ -9,6 +9,7 @@ import Typography from '@mui/material/Typography';
 import Initializer from '@/components/initializer';
 import CurrentCharacter from '@/components/character/currentCharacter';
 import CharacterActionList from '@/components/character/characterActionList';
+import CharacterHue from '@/components/character/characterHue';
 
 export default function Home() {
   return (
@@ -27,6 +28,9 @@ export default function Home() {
             <CharacterActionList />
           </Box>
           <Typography variant="h5">染色列表</Typography>
+          <Box>
+            <CharacterHue />
+          </Box>
         </Container>
       </main>
     </>

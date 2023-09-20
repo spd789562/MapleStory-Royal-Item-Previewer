@@ -8,6 +8,8 @@ import type { IItemEntry } from './Character/IItemEntry';
 
 import { generateWebPFromFrames } from './generateWebPFromFrames';
 
+import { produce } from 'immer';
+
 const MapleStoryJs = new MapleStory({
   Endpoint: 'https://store.maplestory.io/api',
 });
@@ -69,6 +71,27 @@ export async function getWebPFromCharacterData(data: CharacterData) {
       height: plan.height,
     },
   };
+}
+
+const defaultHueFilterParts = ['Body', 'Head', 'Hair', 'Face'];
+
+export async function getHueCharacterCanvasList(data: CharacterData, count: number) {
+  const list: CharacterData[] = [];
+  const iter = Math.floor(360 / count);
+  for (let i = 0; i < count; i++) {
+    list.push(
+      produce(data, (draft) => {
+        Object.keys(draft.selectedItems).forEach((part) => {
+          if (defaultHueFilterParts.includes(part)) return;
+          draft.selectedItems[part].hue = i * iter;
+        });
+      }),
+    );
+  }
+  const plans = await Promise.all(
+    list.map((data) => MapleStoryJs.CharacterRenderer.GenerateRenderPlan(data as unknown as IRenderRequest)),
+  );
+  return Promise.all(plans.map((plan) => plan.Render()));
 }
 
 export default MapleStoryJs;

@@ -7,6 +7,7 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
 import Initializer from '@/components/initializer';
+import CharacterUpload from '@/components/characterUpload';
 import CurrentCharacter from '@/components/character/currentCharacter';
 import CharacterActionList from '@/components/character/characterActionList';
 import CharacterHue from '@/components/character/characterHue';
@@ -21,7 +22,8 @@ export default function Home() {
       </AppBar>
       <main className="p-2 pt-4">
         <Initializer />
-        <Container>
+        <Container maxWidth="lg">
+          <CharacterUpload />
           <CurrentCharacter />
           <Typography variant="h5">角色動作</Typography>
           <Box>

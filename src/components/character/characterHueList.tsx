@@ -8,9 +8,13 @@ import Grid from '@mui/material/Grid';
 
 import { getHueCharacterCanvasList } from '@/utils/maplestory';
 
-interface CharacterHueListProps {
+export interface CharacterHueListRef {
+  canvasList: HTMLCanvasElement[];
+}
+export interface CharacterHueListProps {
   onChangeLoad: (isLoading: boolean) => void;
   hueCount: number;
+  forwardedRef?: React.Ref<CharacterHueListRef>;
 }
 function CharacterHueList({ onChangeLoad, hueCount }: CharacterHueListProps) {
   const [characterCanvasList, setCharacterCanvasList] = useState<HTMLCanvasElement[]>([]);
@@ -29,7 +33,7 @@ function CharacterHueList({ onChangeLoad, hueCount }: CharacterHueListProps) {
   return (
     <Grid container spacing={1} className="mt-2">
       {characterCanvasList.map((canvas, index) => (
-        <Grid item xs={6} sm={4} md={3} lg={2} key={index} display="flex" justifyContent="center" alignItems="center">
+        <Grid key={index} item xs={6} sm={4} md={3} lg={2} display="flex" justifyContent="center" alignItems="center">
           <img src={canvas.toDataURL()} />
         </Grid>
       ))}

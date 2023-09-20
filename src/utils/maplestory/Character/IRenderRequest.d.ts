@@ -1,4 +1,4 @@
-import type IVector from '../PKG1/IVector';
+import type IVector from 'maplestory/dist/PKG1/IVector';
 import type { IItemEntry } from './IItemEntry';
 export interface IHairDyeOptions {
   colorId: number;

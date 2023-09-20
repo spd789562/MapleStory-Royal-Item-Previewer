@@ -1,7 +1,9 @@
-import type { IProperty } from '../PKG1/IProperty';
+import type { IProperty } from 'maplestory/dist/PKG1/IProperty';
 import type { IRenderPlanOverrides } from './IRenderPlanOverrides';
 import { NodeItemPair } from './NodeItemPair';
 import RenderPiece from './RenderPiece';
+
+type CanvasPieces = { child: IProperty; item: NodeItemPair };
 
 export interface ILoadedPieces {
   pieces: Record<string, RenderPiece[]>;
@@ -20,7 +22,7 @@ export async function LoadPieces(
     );
 
     return total;
-  }, []) as Array<{ child: IProperty; item: NodeItemPair }>;
+  }, [] as CanvasPieces[]);
 
   // Handle any UOLs / InLinks / OutLinks and pair with the original
   const resolvedCanvasPieces = (await Promise.all(

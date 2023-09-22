@@ -3,6 +3,8 @@ import { atom, selector } from 'recoil';
 import type { CharacterData } from '@/utils/maplestory';
 import { CharacterAction } from '@/mapping/characterAction';
 
+import { produce } from 'immer';
+
 import { libReadyAtom } from './libReady';
 
 export const characterDataAtom = atom<CharacterData | undefined>({
@@ -91,10 +93,10 @@ export const characterDataAtom = atom<CharacterData | undefined>({
         if (!newCharacterData) {
           return newCharacterData;
         }
-        const characterData = newCharacterData;
-        characterData.action = CharacterAction.Alert;
-        characterData.emotion = 'default';
-        return newCharacterData;
+        return produce(newCharacterData, (draft) => {
+          draft.action = CharacterAction.Stand1;
+          draft.emotion = 'default';
+        });
       });
     },
   ],

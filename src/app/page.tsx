@@ -2,13 +2,11 @@ import React from 'react';
 
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
-import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
 import Initializer from '@/components/initializer';
-import CharacterUpload from '@/components/characterUpload';
-import CurrentCharacter from '@/components/character/currentCharacter';
+import Info from '@/components/info/info';
 import CharacterActionList from '@/components/character/characterActionList';
 import CharacterHue from '@/components/character/characterHue';
 
@@ -23,16 +21,15 @@ export default function Home() {
       <main className="p-2 pt-4">
         <Initializer />
         <Container maxWidth="lg">
-          <CharacterUpload />
-          <CurrentCharacter />
+          <Info />
           <Typography variant="h5">角色動作</Typography>
-          <Box>
+          <div className="mt-4 pl-4">
             <CharacterActionList />
-          </Box>
+          </div>
           <Typography variant="h5">染色列表</Typography>
-          <Box>
+          <div className="px-4">
             <CharacterHue />
-          </Box>
+          </div>
         </Container>
       </main>
     </>

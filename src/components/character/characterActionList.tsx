@@ -48,7 +48,7 @@ function CharacterActionList() {
   return (
     <Grid container spacing={2} alignItems="stretch">
       {actions.map((action) => (
-        <Grid key={action} item xs={12} sm={4} md={3} lg={2} p={2}>
+        <Grid key={action} item xs={12} sm={6} md={4} lg={3} p={2}>
           <Paper>
             <Typography variant="h6" px={1}>
               {action}

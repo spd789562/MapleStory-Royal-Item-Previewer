@@ -51,8 +51,10 @@ function CharacterHue() {
 
   return (
     <div className="mt-2">
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-        <Typography id="hue-slider">染色數量</Typography>
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mb={2}>
+        <Typography id="hue-slider" sx={{ minWidth: '100px' }}>
+          染色數量
+        </Typography>
         <Slider
           value={hueCount}
           aria-labelledby="hue-slider"
@@ -63,6 +65,7 @@ function CharacterHue() {
           max={72}
           onChange={handleSliderChange}
           disabled={isLoading}
+          sx={{ maxWidth: '300px' }}
         />
       </Stack>
       <CharacterHueList onChangeLoad={setIsLoading} hueCount={debounceHueCount} />

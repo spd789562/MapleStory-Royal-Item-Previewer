@@ -4,6 +4,7 @@ import { styled } from '@mui/material/styles';
 
 import { useRecoilValue } from 'recoil';
 import { libReadyAtom } from '@/store/libReady';
+import { canUploadCharacterSelector } from '@/store/selector';
 
 import Box from '@mui/material/Box';
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
@@ -28,11 +29,11 @@ const HiddenInput = styled('input')({
 
 function CharacterUpload() {
   const [characterData, setCharacterData] = useState<any>(null);
-  const isLibReady = useRecoilValue(libReadyAtom);
+  const canUpload = useRecoilValue(canUploadCharacterSelector);
   const onDrop = useCallback(
     (files: FileList) => {
       const file = files[0];
-      if (!file || !isLibReady) return;
+      if (!file || !canUpload) return;
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result;
@@ -42,7 +43,7 @@ function CharacterUpload() {
       };
       reader.readAsText(file);
     },
-    [isLibReady],
+    [canUpload],
   );
   const onFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,7 +82,7 @@ function CharacterUpload() {
                 borderColor: 'grey.400',
                 backgroundColor: 'grey.100',
               }),
-          ...(!isLibReady && {
+          ...(!canUpload && {
             borderColor: 'grey.400',
             backgroundColor: 'grey.100',
             opacity: 0.5,
@@ -90,7 +91,7 @@ function CharacterUpload() {
         }}
       >
         <FileUploadOutlinedIcon />
-        <HiddenInput type="file" accept="application/json" onChange={onFileChange} />
+        <HiddenInput type="file" accept="application/json" onChange={onFileChange} disabled={!canUpload} />
         <span>點擊上傳或拖曳角色檔案至此</span>
       </Box>
       <InfoResolver data={characterData} />

@@ -9,9 +9,16 @@ export interface CharacterItem {
   name: string;
   icon?: string;
 }
+export enum LoadStatus {
+  Idle,
+  Loading,
+  Loaded,
+  Error,
+}
 
 export interface CharacterItems {
   isLoaded: boolean;
+  loadStatus: LoadStatus;
   items: CharacterItem[];
 }
 
@@ -19,23 +26,34 @@ export const characterItemsAtom = atom<CharacterItems>({
   key: 'characterItem',
   default: {
     isLoaded: false,
+    loadStatus: LoadStatus.Idle,
     items: [],
   },
 });
 
-export const isCharacterItemsLoadedSelector = selector<boolean>({
-  key: 'isCharacterItemsLoaded',
-  get: ({ get }) => get(characterItemsAtom).isLoaded,
+export const characterItemsLoadStatusSelector = selector<LoadStatus>({
+  key: 'characterItemsLoadStatus',
+  get: ({ get }) => get(characterItemsAtom).loadStatus,
   set: ({ set, get }, newValue) => {
     set(
       characterItemsAtom,
       newValue instanceof DefaultValue
         ? newValue
         : produce(get(characterItemsAtom), (draft) => {
-            draft.isLoaded = newValue;
+            draft.loadStatus = newValue;
           }),
     );
   },
+});
+
+export const isCharacterItemsLoadedSelector = selector<boolean>({
+  key: 'isCharacterItemsLoaded',
+  get: ({ get }) => get(characterItemsAtom).loadStatus === LoadStatus.Loaded,
+});
+
+export const isCharacterItemsLoadingSelector = selector<boolean>({
+  key: 'isCharacterItemsLoading',
+  get: ({ get }) => get(characterItemsAtom).loadStatus === LoadStatus.Loading,
 });
 
 export const hasCharacterItemsSelector = selector<boolean>({
@@ -62,7 +80,7 @@ export const characterItemsSelector = selector<CharacterItem[]>({
                   icon: item.icon,
                 };
               });
-              draft.isLoaded = true;
+              draft.loadStatus = LoadStatus.Loaded;
             }),
     );
   },

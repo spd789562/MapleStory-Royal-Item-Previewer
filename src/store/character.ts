@@ -5,7 +5,7 @@ import { CharacterAction } from '@/mapping/characterAction';
 
 import { produce } from 'immer';
 
-import { libReadyAtom } from './libReady';
+import { canLoadCharacterSelector } from './selector';
 
 export const characterDataAtom = atom<CharacterData | undefined>({
   key: 'characterData',
@@ -106,9 +106,9 @@ const createCharacterDataOtherActionSelector = (action: CharacterAction) =>
   selector({
     key: `characterData${action}`,
     get: ({ get }) => {
-      const isLibReady = get(libReadyAtom);
+      const canLoadCharacter = get(canLoadCharacterSelector);
       const characterData = get(characterDataAtom);
-      if (!characterData || !isLibReady) {
+      if (!characterData || !canLoadCharacter) {
         return undefined;
       }
       return {

@@ -2,6 +2,9 @@
 import { useCallback, useState } from 'react';
 import { styled } from '@mui/material/styles';
 
+import { useRecoilValue } from 'recoil';
+import { libReadyAtom } from '@/store/libReady';
+
 import Box from '@mui/material/Box';
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
 
@@ -25,18 +28,22 @@ const HiddenInput = styled('input')({
 
 function CharacterUpload() {
   const [characterData, setCharacterData] = useState<any>(null);
-  const onDrop = useCallback((files: FileList) => {
-    const file = files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const result = e.target?.result;
-      if (!result) return;
-      const data = JSON.parse(result as string);
-      setCharacterData(data);
-    };
-    reader.readAsText(file);
-  }, []);
+  const isLibReady = useRecoilValue(libReadyAtom);
+  const onDrop = useCallback(
+    (files: FileList) => {
+      const file = files[0];
+      if (!file || !isLibReady) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result;
+        if (!result) return;
+        const data = JSON.parse(result as string);
+        setCharacterData(data);
+      };
+      reader.readAsText(file);
+    },
+    [isLibReady],
+  );
   const onFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = e.target.files;
@@ -57,6 +64,7 @@ function CharacterUpload() {
         flexDirection="column"
         justifyContent="center"
         alignItems="center"
+        mt={2}
         {...dropableProps}
         sx={{
           borderStyle: 'dashed',
@@ -73,6 +81,12 @@ function CharacterUpload() {
                 borderColor: 'grey.400',
                 backgroundColor: 'grey.100',
               }),
+          ...(!isLibReady && {
+            borderColor: 'grey.400',
+            backgroundColor: 'grey.100',
+            opacity: 0.5,
+            cursor: 'not-allowed',
+          }),
         }}
       >
         <FileUploadOutlinedIcon />

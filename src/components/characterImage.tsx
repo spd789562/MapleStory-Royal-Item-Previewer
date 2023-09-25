@@ -28,7 +28,7 @@ export interface CharacterImageRef {
 const CharacterImage = ({ data: characterData, name, forwardedRef }: CharacterImageProps) => {
   const abortIdRef = useRef<number | null>(null);
   const parsedDataRef = useRef<ParsedData | null>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(true);
   const [webp, setWebp] = useState<string | null>(null);
 
   useEffect(() => {
@@ -77,11 +77,11 @@ const CharacterImage = ({ data: characterData, name, forwardedRef }: CharacterIm
   );
 
   return (
-    <div className="w-full h-full grid justify-center items-center" style={{ minHeight: 100 }}>
+    <div className="w-full h-full flex justify-center items-center" style={{ minHeight: 100 }}>
       {isLoaded && webp ? (
         <img src={webp} alt={name || 'character image'} />
       ) : (
-        <Skeleton variant="rectangular" width="100%" height={100} />
+        <Skeleton variant="rectangular" sx={{ height: 100, minWidth: '100%' }} animation={isLoaded ? false : 'wave'} />
       )}
     </div>
   );

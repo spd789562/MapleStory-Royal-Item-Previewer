@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 
 import { RecoidContextProvider } from '@/store';
+import { WorkerContextProvider } from '@/workers/workerContext';
 
 import './globals.css';
 
@@ -20,7 +21,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <RecoidContextProvider>{children}</RecoidContextProvider>
+        <WorkerContextProvider>
+          <RecoidContextProvider>{children}</RecoidContextProvider>
+        </WorkerContextProvider>
       </body>
     </html>
   );

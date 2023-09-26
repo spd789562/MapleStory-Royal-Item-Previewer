@@ -5,9 +5,9 @@ import ItemUtilities from './Item/Utilities';
 import type { RenderPlan } from 'maplestory/dist/Character/RenderPlan';
 import type { IVector, IRenderRequest } from 'maplestory';
 import type { IItemEntry } from './Character/IItemEntry';
+import type { WorkerCharacterFrame } from '@/workers/node-webpmux';
 
-import { generateWebPFromFrames } from './generateWebPFromFrames';
-
+import { Buffer } from 'buffer';
 import { produce } from 'immer';
 
 const MapleStoryJs = new MapleStory({
@@ -20,14 +20,14 @@ MapleStoryJs.CharacterRenderer = new CharacterRenderer(MapleStoryJs.ItemUtilitie
 /* @ts-ignore */
 MapleStoryJs.ItemUtilities = new ItemUtilities(MapleStoryJs.DataFactory);
 
-MapleStoryJs.Network.RegisterEventMonitor((moniter) => {
-  console.log('moniter create:', moniter.Name);
-  moniter.RegisterNotifyOnComplete((monitor) => {
-    console.log('moniter complete:', monitor.Name);
-    return null;
-  });
-  return null;
-});
+// MapleStoryJs.Network.RegisterEventMonitor((moniter) => {
+//   console.log('moniter create:', moniter.Name, moniter);
+//   moniter.RegisterNotifyOnComplete((monitor) => {
+//     console.log('moniter complete:', monitor.Name, moniter);
+//     return null;
+//   });
+//   return null;
+// });
 
 export interface CharacterFrame {
   canvas: HTMLCanvasElement;
@@ -35,6 +35,7 @@ export interface CharacterFrame {
   offset: IVector;
   size: IVector;
   delay?: number;
+  buffer?: Buffer;
 }
 
 export interface CharacterData extends Omit<IRenderRequest, 'id' | 'skin' | 'selectedItems'> {
@@ -61,11 +62,27 @@ export async function getWebPFromCharacterData(data: CharacterData) {
   }));
 
   return {
-    url: await generateWebPFromFrames(frames, {
-      width: plan.width,
-      height: plan.height,
-    }),
-    frames,
+    frames: frames.map((frame) => {
+      const frameCtx = frame.canvas.getContext('2d', { willReadFrequently: true })!;
+      const _frameData = frameCtx.getImageData(0, 0, frame.size.x || plan.width, frame.size.y || plan.height);
+
+      frame.canvas.width = plan.width;
+      frame.canvas.height = plan.height;
+
+      frameCtx.clearRect(0, 0, plan.width, plan.height);
+      frameCtx.putImageData(_frameData, -frame.offset.x, -frame.offset.y);
+
+      const frameData = frameCtx.getImageData(0, 0, plan.width, plan.height);
+
+      const frameBuffer = Buffer.from(frameData.data.buffer);
+
+      return {
+        ...frame,
+        frame: undefined,
+        canvas: undefined,
+        buffer: frameBuffer,
+      };
+    }) as WorkerCharacterFrame[],
     size: {
       width: plan.width,
       height: plan.height,
@@ -75,14 +92,16 @@ export async function getWebPFromCharacterData(data: CharacterData) {
 
 const defaultHueFilterParts = ['Body', 'Head', 'Hair', 'Face'];
 
-export async function getHueCharacterCanvasList(data: CharacterData, count: number) {
+export async function getHueCharacterCanvasList(data: CharacterData, count: number, filterIds: number[] = []) {
   const list: CharacterData[] = [];
   const iter = Math.floor(360 / count);
   for (let i = 0; i < count; i++) {
     list.push(
       produce(data, (draft) => {
+        draft.frame = 0;
         Object.keys(draft.selectedItems).forEach((part) => {
           if (defaultHueFilterParts.includes(part)) return;
+          if (filterIds.includes(draft.selectedItems[part]!.id)) return;
           draft.selectedItems[part].hue = i * iter;
         });
       }),

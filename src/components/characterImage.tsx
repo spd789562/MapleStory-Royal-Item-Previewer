@@ -4,6 +4,8 @@ import { useEffect, useState, useRef, forwardRef, useImperativeHandle } from 're
 import Skeleton from '@mui/material/Skeleton';
 
 import { getWebPFromCharacterData, CharacterData, CharacterFrame } from '@/utils/maplestory';
+import { useWorker } from '@/workers/workerContext';
+import { MessageType } from '@/workers/const';
 
 import { encode } from 'modern-gif';
 
@@ -30,19 +32,38 @@ const CharacterImage = ({ data: characterData, name, forwardedRef }: CharacterIm
   const parsedDataRef = useRef<ParsedData | null>(null);
   const [isLoaded, setIsLoaded] = useState(true);
   const [webp, setWebp] = useState<string | null>(null);
+  const wepWorker = useWorker('node-webpmux');
 
   useEffect(() => {
-    if (characterData) {
+    if (characterData && wepWorker) {
       setIsLoaded(false);
       const abortId = new Date().getTime();
       abortIdRef.current = abortId;
       parsedDataRef.current = null;
-      getWebPFromCharacterData(characterData).then((data) => {
-        if (abortIdRef.current !== abortId) return;
-        parsedDataRef.current = data;
-        setWebp(data.url);
-        setIsLoaded(true);
-      });
+      getWebPFromCharacterData(characterData)
+        .then((data) => {
+          if (abortIdRef.current !== abortId) return;
+
+          return new Promise((resolve) => {
+            const _id = Math.random().toString(36).substr(2, 9);
+            const completeWepEvent = (e: MessageEvent) => {
+              if (e.data.type === MessageType.GetWebPFromFrames && e.data._id === _id) {
+                resolve({
+                  ...data,
+                  url: e.data.data.result,
+                });
+                wepWorker.removeEventListener('message', completeWepEvent);
+              }
+            };
+            wepWorker.addEventListener('message', completeWepEvent);
+            wepWorker.postMessage({ type: MessageType.GetWebPFromFrames, data, _id });
+          });
+        })
+        .then((data: any) => {
+          parsedDataRef.current = data;
+          setWebp(data.url);
+          setIsLoaded(true);
+        });
     }
   }, [characterData]);
 

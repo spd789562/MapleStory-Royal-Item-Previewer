@@ -51,7 +51,7 @@ function CharacterHue() {
 
   return (
     <div className="mt-2">
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mb={2}>
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mb={2} alignItems="center">
         <Typography id="hue-slider" sx={{ minWidth: '100px' }}>
           染色數量
         </Typography>

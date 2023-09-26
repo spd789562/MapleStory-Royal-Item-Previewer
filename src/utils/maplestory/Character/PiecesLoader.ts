@@ -40,7 +40,7 @@ export async function LoadPieces(
         resolved,
       };
     }),
-  )) as Array<{ child: IProperty; resolved: IProperty; item: NodeItemPair }>;
+  )) as (CanvasPieces & { resolved: IProperty })[];
 
   let delays = {} as Record<string, number>;
 

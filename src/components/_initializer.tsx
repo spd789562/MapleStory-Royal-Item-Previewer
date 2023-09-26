@@ -7,7 +7,9 @@ import { itemIdMapAtom } from '@/store/itemIdMap';
 
 import Maplestory from '@/utils/maplestory';
 
-import WebP from 'node-webpmux';
+import { useWorkerContext } from '@/workers/workerContext';
+
+import { MessageType } from '@/workers/const';
 
 interface VersionItem {
   IsReady: boolean;
@@ -20,8 +22,26 @@ interface VersionItem {
 export default function Initializer() {
   const setLibReady = useSetRecoilState(libReadyAtom);
   const setItemIdMap = useSetRecoilState(itemIdMapAtom);
+  const workers = useWorkerContext();
 
   useEffect(() => {
+    const initWorkerPromise = new Promise<void>((resolve) => {
+      const worker = new Worker(new URL('@/workers/node-webpmux.ts', import.meta.url));
+      workers['node-webpmux'] = {
+        worker,
+        isReady: false,
+      };
+      const onWorkerReady = (e: MessageEvent) => {
+        if (e.data.type === MessageType.Init) {
+          workers['node-webpmux'].isReady = true;
+          resolve();
+          worker.removeEventListener('message', onWorkerReady);
+        }
+      };
+      worker.addEventListener('message', onWorkerReady);
+      worker.postMessage({ type: MessageType.Init });
+    });
+
     const versionCheckPromise = new Promise<string>((resolve) => {
       const version = localStorage.getItem('maplestory:region') || '';
       if (version !== 'TWMS') {
@@ -58,7 +78,7 @@ export default function Initializer() {
       Maplestory.DataFactory.resolve('TWMS', latestVersion, 'String/Eqp.img/Eqp'),
     );
 
-    Promise.all([WebP.Image.initLib(), stringPromise]).then(([_, stringData]) => {
+    Promise.all([initWorkerPromise, stringPromise]).then(([_, stringData]) => {
       // console.log(stringData);
       const allIdMap = stringData.children
         .flatMap((categoryProp) =>

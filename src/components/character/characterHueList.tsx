@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRecoilValue } from 'recoil';
 
 import { characterDataAtom } from '@/store/character';
@@ -19,17 +19,33 @@ export interface CharacterHueListProps {
   forwardedRef?: React.Ref<CharacterHueListRef>;
 }
 function CharacterHueList({ onChangeLoad, hueCount }: CharacterHueListProps) {
-  const [characterCanvasList, setCharacterCanvasList] = useState<HTMLCanvasElement[]>([]);
+  const [characterCanvasList, setCharacterCanvasList] = useState<string[]>([]);
+  const characterCanvasListRef = useRef<HTMLCanvasElement[]>([]);
   const characterData = useRecoilValue(characterDataAtom);
   const canLoadCharacter = useRecoilValue(canLoadCharacterSelector);
 
   useEffect(() => {
     if (characterData && canLoadCharacter) {
       onChangeLoad(true);
-      getHueCharacterCanvasList(characterData, hueCount).then((list) => {
-        setCharacterCanvasList(list);
-        onChangeLoad(false);
-      });
+      getHueCharacterCanvasList(characterData, hueCount)
+        .then((list) => {
+          characterCanvasListRef.current = list;
+
+          return Promise.all(
+            list.map(
+              (canvas) =>
+                new Promise<string>((resolve) => {
+                  canvas.toBlob((blob) => {
+                    resolve(URL.createObjectURL(blob!));
+                  });
+                }),
+            ),
+          );
+        })
+        .then((urls) => {
+          setCharacterCanvasList(urls);
+          onChangeLoad(false);
+        });
     }
   }, [characterData, canLoadCharacter, onChangeLoad, hueCount]);
 
@@ -48,9 +64,9 @@ function CharacterHueList({ onChangeLoad, hueCount }: CharacterHueListProps) {
       className="mt-2"
       justifyContent="center"
     >
-      {characterCanvasList.map((canvas, index) => (
+      {characterCanvasList.map((url, index) => (
         <Grid key={index} item display="flex" justifyContent="center" alignItems="center">
-          <img src={canvas.toDataURL()} />
+          <img src={url} />
         </Grid>
       ))}
       {characterCanvasList.length === 0 &&

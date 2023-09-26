@@ -35,8 +35,10 @@ function CharacterHueList({ onChangeLoad, hueCount }: CharacterHueListProps) {
             list.map(
               (canvas) =>
                 new Promise<string>((resolve) => {
-                  canvas.toBlob((blob) => {
-                    resolve(URL.createObjectURL(blob!));
+                  requestIdleCallback(() => {
+                    canvas.toBlob((blob) => {
+                      resolve(URL.createObjectURL(blob!));
+                    });
                   });
                 }),
             ),

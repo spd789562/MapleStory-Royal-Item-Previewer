@@ -44,9 +44,17 @@ export interface CharacterData extends Omit<IRenderRequest, 'id' | 'skin' | 'sel
   selectedItems: Record<string, IItemEntry>;
 }
 
+const doInIdle = <T>(callback: () => Promise<T>): Promise<T> => {
+  return new Promise((resolve) => {
+    requestIdleCallback(async () => {
+      resolve(await callback());
+    });
+  });
+};
+
 export async function getWebPFromCharacterData(data: CharacterData) {
   const plan = await MapleStoryJs.CharacterRenderer.GenerateAnimatedRenderPlan(data as unknown as IRenderRequest);
-  const allFrames = await Promise.all(plan.frames.map((frame) => frame.Render()));
+  const allFrames = await Promise.all(plan.frames.map((frame) => doInIdle(async () => await frame.Render())));
   const frames: CharacterFrame[] = allFrames.map((frame, index) => ({
     canvas: frame,
     delay: plan.frames[index]!.minimumDelay,
@@ -108,9 +116,11 @@ export async function getHueCharacterCanvasList(data: CharacterData, count: numb
     );
   }
   const plans = await Promise.all(
-    list.map((data) => MapleStoryJs.CharacterRenderer.GenerateRenderPlan(data as unknown as IRenderRequest)),
+    list.map((data) =>
+      doInIdle(async () => await MapleStoryJs.CharacterRenderer.GenerateRenderPlan(data as unknown as IRenderRequest)),
+    ),
   );
-  return Promise.all(plans.map((plan) => plan.Render()));
+  return Promise.all(plans.map((plan) => doInIdle(async () => await plan.Render())));
 }
 
 export default MapleStoryJs;

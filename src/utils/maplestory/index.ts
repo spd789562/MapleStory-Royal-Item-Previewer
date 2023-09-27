@@ -9,6 +9,7 @@ import type { WorkerCharacterFrame } from '@/workers/node-webpmux';
 
 import { Buffer } from 'buffer';
 import { produce } from 'immer';
+import { asyncRequestIdleCallback } from '@/utils/requestIdleCallback';
 
 const MapleStoryJs = new MapleStory({
   Endpoint: 'https://store.maplestory.io/api',
@@ -44,17 +45,11 @@ export interface CharacterData extends Omit<IRenderRequest, 'id' | 'skin' | 'sel
   selectedItems: Record<string, IItemEntry>;
 }
 
-const doInIdle = <T>(callback: () => Promise<T>): Promise<T> => {
-  return new Promise((resolve) => {
-    requestIdleCallback(async () => {
-      resolve(await callback());
-    });
-  });
-};
-
 export async function getWebPFromCharacterData(data: CharacterData) {
   const plan = await MapleStoryJs.CharacterRenderer.GenerateAnimatedRenderPlan(data as unknown as IRenderRequest);
-  const allFrames = await Promise.all(plan.frames.map((frame) => doInIdle(async () => await frame.Render())));
+  const allFrames = await Promise.all(
+    plan.frames.map((frame) => asyncRequestIdleCallback(async () => await frame.Render())),
+  );
   const frames: CharacterFrame[] = allFrames.map((frame, index) => ({
     canvas: frame,
     delay: plan.frames[index]!.minimumDelay,
@@ -71,16 +66,14 @@ export async function getWebPFromCharacterData(data: CharacterData) {
 
   return {
     frames: frames.map((frame) => {
-      const frameCtx = frame.canvas.getContext('2d', { willReadFrequently: true })!;
-      const _frameData = frameCtx.getImageData(0, 0, frame.size.x || plan.width, frame.size.y || plan.height);
+      const $canvas = document.createElement('canvas');
+      $canvas.width = plan.width;
+      $canvas.height = plan.height;
+      const ctx = $canvas.getContext('2d', { willReadFrequently: true })!;
 
-      frame.canvas.width = plan.width;
-      frame.canvas.height = plan.height;
+      ctx.drawImage(frame.canvas, -frame.offset.x, -frame.offset.y);
 
-      frameCtx.clearRect(0, 0, plan.width, plan.height);
-      frameCtx.putImageData(_frameData, -frame.offset.x, -frame.offset.y);
-
-      const frameData = frameCtx.getImageData(0, 0, plan.width, plan.height);
+      const frameData = ctx.getImageData(0, 0, plan.width, plan.height);
 
       const frameBuffer = Buffer.from(frameData.data.buffer);
 
@@ -117,10 +110,12 @@ export async function getHueCharacterCanvasList(data: CharacterData, count: numb
   }
   const plans = await Promise.all(
     list.map((data) =>
-      doInIdle(async () => await MapleStoryJs.CharacterRenderer.GenerateRenderPlan(data as unknown as IRenderRequest)),
+      asyncRequestIdleCallback(
+        async () => await MapleStoryJs.CharacterRenderer.GenerateRenderPlan(data as unknown as IRenderRequest),
+      ),
     ),
   );
-  return Promise.all(plans.map((plan) => doInIdle(async () => await plan.Render())));
+  return Promise.all(plans.map((plan) => asyncRequestIdleCallback(async () => await plan.Render())));
 }
 
 export default MapleStoryJs;

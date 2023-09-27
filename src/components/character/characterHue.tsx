@@ -11,6 +11,7 @@ import type { CharacterHueListRef } from '@/components/character/characterHueLis
 import { useRecoilValue } from 'recoil';
 import { canLoadCharacterSelector } from '@/store/selector';
 
+import { requestIdleCallback } from '@/utils/requestIdleCallback';
 import { debounce } from '@mui/material';
 import dynamic from 'next/dynamic';
 import download from 'downloadjs';
@@ -114,7 +115,7 @@ function CharacterHue() {
 
   return (
     <div className="mt-2">
-      <Stack direction="row" spacing={2} alignItems="center">
+      <Stack direction="row" spacing={2} mb={2} alignItems="center">
         <Button
           variant="contained"
           startIcon={<DownloadIcon />}

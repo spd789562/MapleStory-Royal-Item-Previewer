@@ -9,6 +9,7 @@ import Grid from '@mui/material/Grid';
 import Skeleton from '@mui/material/Skeleton';
 
 import { getHueCharacterCanvasList } from '@/utils/maplestory';
+import { requestIdleCallback } from '@/utils/requestIdleCallback';
 
 export interface CharacterHueListRef {
   canvasList: HTMLCanvasElement[];

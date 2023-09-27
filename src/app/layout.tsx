@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google';
 
 import { RecoidContextProvider } from '@/store';
 import { WorkerContextProvider } from '@/workers/workerContext';
-import { CssBaseline } from '@mui/material';
+import CssBaseline from '@mui/material/CssBaseline';
 
 import './globals.css';
 

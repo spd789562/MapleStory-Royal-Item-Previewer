@@ -21,6 +21,7 @@
     "buffer": "6.0.3",
     "downloadjs": "1.4.7",
     "immer": "10.0.2",
+    "jszip": "^3.10.1",
     "maplestory": "2.1.0-pre.39",
     "modern-gif": "1.1.8",
     "next": "13.4.19",

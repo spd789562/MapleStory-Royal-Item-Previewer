@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useImperativeHandle } from 'react';
 import { useRecoilValue } from 'recoil';
 
 import { characterDataAtom } from '@/store/character';
@@ -18,9 +18,9 @@ export interface CharacterHueListProps {
   hueCount: number;
   forwardedRef?: React.Ref<CharacterHueListRef>;
 }
-function CharacterHueList({ onChangeLoad, hueCount }: CharacterHueListProps) {
+function CharacterHueList({ onChangeLoad, hueCount, forwardedRef }: CharacterHueListProps) {
   const [characterCanvasList, setCharacterCanvasList] = useState<string[]>([]);
-  const characterCanvasListRef = useRef<HTMLCanvasElement[]>([]);
+  const canvasListRef = useRef<HTMLCanvasElement[]>([]);
   const characterData = useRecoilValue(characterDataAtom);
   const canLoadCharacter = useRecoilValue(canLoadCharacterSelector);
 
@@ -29,8 +29,7 @@ function CharacterHueList({ onChangeLoad, hueCount }: CharacterHueListProps) {
       onChangeLoad(true);
       getHueCharacterCanvasList(characterData, hueCount)
         .then((list) => {
-          characterCanvasListRef.current = list;
-
+          canvasListRef.current = list;
           return Promise.all(
             list.map(
               (canvas) =>
@@ -50,6 +49,14 @@ function CharacterHueList({ onChangeLoad, hueCount }: CharacterHueListProps) {
         });
     }
   }, [characterData, canLoadCharacter, onChangeLoad, hueCount]);
+
+  useImperativeHandle(
+    forwardedRef,
+    () => ({
+      canvasList: canvasListRef.current,
+    }),
+    [characterCanvasList],
+  );
 
   return (
     <Grid

@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 
 import { RecoidContextProvider } from '@/store';
 import { WorkerContextProvider } from '@/workers/workerContext';
+import { CssBaseline } from '@mui/material';
 
 import './globals.css';
 
@@ -20,7 +21,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body id="__next" className={inter.className}>
+        <CssBaseline />
         <WorkerContextProvider>
           <RecoidContextProvider>{children}</RecoidContextProvider>
         </WorkerContextProvider>

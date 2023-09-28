@@ -4,11 +4,15 @@ import { useRecoilValue } from 'recoil';
 
 import { characterDataOtherActionSelectors } from '@/store/character';
 
+import Skeleton from '@mui/material/Skeleton';
 import { CharacterAction } from '@/mapping/characterAction';
 import type { CharacterImageRef } from '@/components/characterImage';
 import dynamic from 'next/dynamic';
 
-const CharacterImage = dynamic(() => import('@/components/characterImage'), { ssr: false });
+const CharacterImage = dynamic(() => import('@/components/characterImage'), {
+  ssr: false,
+  loading: () => <Skeleton variant="rectangular" sx={{ height: 100, minWidth: '100%' }} animation={false} />,
+});
 
 interface CharacterProps {
   action: CharacterAction;

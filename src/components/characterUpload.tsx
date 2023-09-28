@@ -6,6 +6,7 @@ import { useRecoilValue } from 'recoil';
 import { canUploadCharacterSelector } from '@/store/selector';
 
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
+import CircleProgress from '@mui/material/CircularProgress';
 
 import useDropable from '@/utils/hooks/useDropable';
 import dynamic from 'next/dynamic';
@@ -30,6 +31,7 @@ interface UploadBoxExtraProps {
 const UploadBox = styled('label', {
   shouldForwardProp: (prop) => prop !== 'isDragging' && prop !== 'disabled',
 })<UploadBoxExtraProps>(({ theme, isDragging, disabled }) => ({
+  position: 'relative',
   width: '100%',
   height: '200px',
   display: 'flex',
@@ -45,6 +47,13 @@ const UploadBox = styled('label', {
   opacity: isDragging ? 0.8 : disabled ? 0.5 : 1,
   color: isDragging ? 'white' : theme.palette.grey[600],
   cursor: disabled ? 'not-allowed' : 'pointer',
+}));
+
+const Loading = styled(CircleProgress)(({ theme }) => ({
+  position: 'absolute',
+  top: theme.spacing(2),
+  left: theme.spacing(2),
+  color: theme.palette.grey[600],
 }));
 
 function CharacterUpload() {
@@ -78,6 +87,7 @@ function CharacterUpload() {
   return (
     <>
       <UploadBox {...dropableProps} isDragging={isDragging} disabled={!canUpload}>
+        {!canUpload && <Loading size={32} />}
         <FileUploadOutlinedIcon />
         <HiddenInput type="file" accept="application/json" onChange={onFileChange} disabled={!canUpload} />
         <span>點擊上傳或拖曳角色檔案至此</span>

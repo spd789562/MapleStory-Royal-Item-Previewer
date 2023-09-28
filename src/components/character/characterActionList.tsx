@@ -1,6 +1,9 @@
 'use client';
 import { createRef, useRef, useCallback, useState } from 'react';
 
+import { useRecoilValue } from 'recoil';
+import { canLoadCharacterSelector } from '@/store/selector';
+
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
@@ -58,7 +61,9 @@ const actionRefs = actions.map(() => createRef<CharacterImageRef>());
 
 function CharacterActionList() {
   const actionImageRefs = useRef(actionRefs);
+  const isCharacterLoaded = useRecoilValue(canLoadCharacterSelector);
   const [isLoading, setIsLoading] = useState(false);
+  const isDownloadDisabled = isLoading || !isCharacterLoaded;
 
   const handleDownloadWebps = useCallback(() => {
     if (isLoading) {
@@ -113,10 +118,20 @@ function CharacterActionList() {
   return (
     <div>
       <Stack direction="row" spacing={2} mb={2}>
-        <Button variant="contained" startIcon={<DownloadIcon />} onClick={handleDownloadWebps} disabled={isLoading}>
+        <Button
+          variant="contained"
+          startIcon={<DownloadIcon />}
+          onClick={handleDownloadWebps}
+          disabled={isDownloadDisabled}
+        >
           Webp
         </Button>
-        <Button variant="contained" startIcon={<DownloadIcon />} onClick={handleDownloadGifs} disabled={isLoading}>
+        <Button
+          variant="contained"
+          startIcon={<DownloadIcon />}
+          onClick={handleDownloadGifs}
+          disabled={isDownloadDisabled}
+        >
           Gif
         </Button>
       </Stack>

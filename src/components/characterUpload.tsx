@@ -3,10 +3,8 @@ import { useCallback, useState } from 'react';
 import { styled } from '@mui/material/styles';
 
 import { useRecoilValue } from 'recoil';
-import { libReadyAtom } from '@/store/libReady';
 import { canUploadCharacterSelector } from '@/store/selector';
 
-import Box from '@mui/material/Box';
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
 
 import ItemInfoList from '@/components/info/itemInfoList';
@@ -26,6 +24,30 @@ const HiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
   clipPath: 'inset(50%)',
 });
+
+interface UploadBoxExtraProps {
+  isDragging: boolean;
+  disabled: boolean;
+}
+const UploadBox = styled('label', {
+  shouldForwardProp: (prop) => prop !== 'isDragging' && prop !== 'disabled',
+})<UploadBoxExtraProps>(({ theme, isDragging, disabled }) => ({
+  width: '100%',
+  height: '200px',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
+  marginTop: theme.spacing(2),
+  borderStyle: 'dashed',
+  borderWidth: 2,
+  borderRadius: 4,
+  borderColor: isDragging ? 'white' : theme.palette.grey[400],
+  backgroundColor: isDragging ? theme.palette.primary.light : theme.palette.grey[100],
+  opacity: isDragging ? 0.8 : disabled ? 0.5 : 1,
+  color: isDragging ? 'white' : theme.palette.grey[600],
+  cursor: disabled ? 'not-allowed' : 'pointer',
+}));
 
 function CharacterUpload() {
   const [characterData, setCharacterData] = useState<any>(null);
@@ -57,43 +79,11 @@ function CharacterUpload() {
 
   return (
     <>
-      <Box
-        component="label"
-        width="100%"
-        height="200px"
-        display="flex"
-        flexDirection="column"
-        justifyContent="center"
-        alignItems="center"
-        mt={2}
-        {...dropableProps}
-        sx={{
-          borderStyle: 'dashed',
-          borderWidth: 2,
-          borderRadius: 4,
-          ...(isDragging
-            ? {
-                borderColor: 'white',
-                backgroundColor: 'primary.light',
-                color: 'white',
-                opacity: 0.8,
-              }
-            : {
-                borderColor: 'grey.400',
-                backgroundColor: 'grey.100',
-              }),
-          ...(!canUpload && {
-            borderColor: 'grey.400',
-            backgroundColor: 'grey.100',
-            opacity: 0.5,
-            cursor: 'not-allowed',
-          }),
-        }}
-      >
+      <UploadBox {...dropableProps} isDragging={isDragging} disabled={!canUpload}>
         <FileUploadOutlinedIcon />
         <HiddenInput type="file" accept="application/json" onChange={onFileChange} disabled={!canUpload} />
         <span>點擊上傳或拖曳角色檔案至此</span>
-      </Box>
+      </UploadBox>
       <InfoResolver data={characterData} />
       <ItemInfoList />
     </>

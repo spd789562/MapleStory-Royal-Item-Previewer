@@ -7,8 +7,6 @@ import { canUploadCharacterSelector } from '@/store/selector';
 
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
 
-import ItemInfoList from '@/components/info/itemInfoList';
-
 import useDropable from '@/utils/hooks/useDropable';
 import dynamic from 'next/dynamic';
 
@@ -85,7 +83,6 @@ function CharacterUpload() {
         <span>點擊上傳或拖曳角色檔案至此</span>
       </UploadBox>
       <InfoResolver data={characterData} />
-      <ItemInfoList />
     </>
   );
 }

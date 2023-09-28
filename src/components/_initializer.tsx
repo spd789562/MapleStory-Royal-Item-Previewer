@@ -84,6 +84,7 @@ export default function Initializer() {
         .flatMap((categoryProp) =>
           categoryProp.children.flatMap((prop) => ({
             id: prop.name,
+            category: categoryProp.name,
             name: (prop.children.find((pv) => pv.name === 'name') || { value: '' }).value,
           })),
         )

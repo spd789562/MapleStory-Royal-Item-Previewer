@@ -1,11 +1,12 @@
 'use client';
-import { useEffect, useState, useRef, forwardRef, useImperativeHandle } from 'react';
+import { useEffect, useState, useRef, useImperativeHandle, memo } from 'react';
 
 import Skeleton from '@mui/material/Skeleton';
 
 import { getWebPFromCharacterData, CharacterData, CharacterFrame } from '@/utils/maplestory';
 import { useWorker } from '@/workers/workerContext';
 import { MessageType } from '@/workers/const';
+import type { WorkerCharacterFrame } from '@/workers/node-webpmux';
 
 import { encode } from 'modern-gif';
 
@@ -25,7 +26,9 @@ export interface CharacterImageProps {
 }
 export interface CharacterImageRef {
   getGif: () => Promise<Uint8Array | null>;
-  getWebp: () => Promise<string>;
+  getWebp: () => string;
+  getIsLoading: () => boolean;
+  name?: string;
 }
 const CharacterImage = ({ data: characterData, name, forwardedRef }: CharacterImageProps) => {
   const abortIdRef = useRef<number | null>(null);
@@ -46,6 +49,12 @@ const CharacterImage = ({ data: characterData, name, forwardedRef }: CharacterIm
 
           return new Promise((resolve) => {
             const _id = Math.random().toString(36).substr(2, 9);
+            const workerNeedFrames: WorkerCharacterFrame[] = data.frames.map((frame) => ({
+              buffer: frame.buffer,
+              size: frame.size,
+              offset: frame.offset,
+              delay: frame.delay,
+            }));
             const completeWepEvent = (e: MessageEvent) => {
               if (e.data.type === MessageType.GetWebPFromFrames && e.data._id === _id) {
                 resolve({
@@ -56,7 +65,14 @@ const CharacterImage = ({ data: characterData, name, forwardedRef }: CharacterIm
               }
             };
             wepWorker.addEventListener('message', completeWepEvent);
-            wepWorker.postMessage({ type: MessageType.GetWebPFromFrames, data, _id });
+            wepWorker.postMessage({
+              type: MessageType.GetWebPFromFrames,
+              data: {
+                frames: workerNeedFrames,
+                size: data.size,
+              },
+              _id,
+            });
           });
         })
         .then((data: any) => {
@@ -89,12 +105,14 @@ const CharacterImage = ({ data: characterData, name, forwardedRef }: CharacterIm
         });
         return gif;
       },
-      async getWebp() {
+      getWebp() {
         if (!parsedDataRef.current) return '';
         return parsedDataRef.current.url;
       },
+      getIsLoading: () => isLoaded && Boolean(parsedDataRef.current?.url),
+      name,
     }),
-    [isLoaded],
+    [isLoaded, name],
   );
 
   return (
@@ -108,4 +126,4 @@ const CharacterImage = ({ data: characterData, name, forwardedRef }: CharacterIm
   );
 };
 
-export default CharacterImage;
+export default memo(CharacterImage);

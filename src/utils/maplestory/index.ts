@@ -5,7 +5,6 @@ import ItemUtilities from './Item/Utilities';
 import type { RenderPlan } from 'maplestory/dist/Character/RenderPlan';
 import type { IVector, IRenderRequest } from 'maplestory';
 import type { IItemEntry } from './Character/IItemEntry';
-import type { WorkerCharacterFrame } from '@/workers/node-webpmux';
 
 import { Buffer } from 'buffer';
 import { produce } from 'immer';
@@ -79,11 +78,9 @@ export async function getWebPFromCharacterData(data: CharacterData) {
 
       return {
         ...frame,
-        frame: undefined,
-        canvas: undefined,
         buffer: frameBuffer,
       };
-    }) as WorkerCharacterFrame[],
+    }) as (CharacterFrame & { buffer: Buffer })[],
     size: {
       width: plan.width,
       height: plan.height,

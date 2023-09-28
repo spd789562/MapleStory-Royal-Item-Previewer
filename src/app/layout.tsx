@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Analytics } from '@vercel/analytics/react';
 import { Inter } from 'next/font/google';
 
 import { RecoidContextProvider } from '@/store';
@@ -26,6 +27,7 @@ export default function RootLayout({
         <WorkerContextProvider>
           <RecoidContextProvider>{children}</RecoidContextProvider>
         </WorkerContextProvider>
+        <Analytics />
       </body>
     </html>
   );

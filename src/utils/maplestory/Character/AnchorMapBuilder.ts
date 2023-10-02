@@ -59,7 +59,7 @@ export function BuildAnchors(request: IRenderRequest, lockedPieces: Record<strin
         anchorName: anchoredOffsetName,
       };
 
-      calculatedOffsets[piece.slot || piece.z] = computedOffset;
+      calculatedOffsets[piece.slotName] = computedOffset;
 
       // Push any new offsets to the established anchors
       Object.keys(map)

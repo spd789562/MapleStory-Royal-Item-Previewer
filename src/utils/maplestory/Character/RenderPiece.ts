@@ -34,6 +34,10 @@ export default class RenderPiece implements IPieceInfo {
     return this.originalPiece.group || this.resolvedPiece.group;
   }
 
+  public get slotName(): string {
+    return this.slot === 'default' ? this.z : this.slot || this.z
+  }
+
   constructor(item: NodeItemPair, pieceNode: IProperty, resolvedPiece: IProperty) {
     this.visible = true;
 

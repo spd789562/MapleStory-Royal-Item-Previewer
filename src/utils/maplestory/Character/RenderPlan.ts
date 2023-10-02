@@ -107,7 +107,7 @@ export class RenderPlan {
 
       await Promise.all(
         pieces.map(async (piece) => {
-          const offset = this.anchors.calculatedOffsets[piece.slot || piece.z];
+          const offset = this.anchors.calculatedOffsets[piece.slotName];
 
           let realRenderLocation = {} as IVector;
           if (piece.origin && offset) {

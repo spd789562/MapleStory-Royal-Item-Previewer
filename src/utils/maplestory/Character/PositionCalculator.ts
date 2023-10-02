@@ -37,7 +37,7 @@ export function CalcBounds(request: IRenderRequest, anchors: AnchorResults, lock
   Object.keys(locks.lockedPieces).forEach((lockName) => {
     const lockedPieces = locks.lockedPieces[lockName];
     lockedPieces.forEach((piece) => {
-      const offset = anchors.calculatedOffsets[piece.slot || piece.z];
+      const offset = anchors.calculatedOffsets[piece.slotName];
       if (!offset) return;
 
       const left = offset.x - (piece.origin || { x: 0 }).x;

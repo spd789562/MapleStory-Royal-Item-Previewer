@@ -7,6 +7,10 @@ import { characterDataAtom } from '@/store/character';
 import Maplestory, { CharacterData } from '@/utils/maplestory';
 import type { IRenderRequest } from 'maplestory';
 
+function getIsDyeableFromInfo(info: any) {
+  return !!((info.royalSpecial && info.royalSpecial.value === 1) || (info.colorvar && info.colorvar.value === 1));
+}
+
 interface InfoResolverProps {
   data: CharacterData | null;
 }
@@ -28,7 +32,7 @@ const InfoResolver = ({ data }: InfoResolverProps) => {
               id: item.id,
               name: item.name || '',
               part: info.part,
-              isDyeable: !!(info.royalSpecial && info.royalSpecial.value === 1),
+              isDyeable: getIsDyeableFromInfo(info),
               icon: `https://maplestory.io/api/${item.region}/${item.version}/item/${item.id}/icon`,
             }))
             .filter(({ id }) => !idNeedFiltered.includes(id));

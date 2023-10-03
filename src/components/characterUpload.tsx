@@ -7,6 +7,9 @@ import { canUploadCharacterSelector } from '@/store/selector';
 
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
 import CircleProgress from '@mui/material/CircularProgress';
+import Stack from '@mui/material/Stack';
+import PresetButton from '@/components/preset/presetButton';
+import CharacterDrawer from '@/components/drawer/characterDrawer';
 
 import useDropable from '@/utils/hooks/useDropable';
 import dynamic from 'next/dynamic';
@@ -56,6 +59,12 @@ const Loading = styled(CircleProgress)(({ theme }) => ({
   color: theme.palette.grey[600],
 }));
 
+const BottomRightActions = styled(Stack)(({ theme }) => ({
+  position: 'absolute',
+  bottom: theme.spacing(2),
+  right: theme.spacing(2),
+}));
+
 function CharacterUpload() {
   const [characterData, setCharacterData] = useState<any>(null);
   const canUpload = useRecoilValue(canUploadCharacterSelector);
@@ -91,7 +100,11 @@ function CharacterUpload() {
         <FileUploadOutlinedIcon />
         <HiddenInput type="file" accept="application/json" onChange={onFileChange} disabled={!canUpload} />
         <span>點擊上傳或拖曳角色檔案至此</span>
+        <BottomRightActions direction="row" spacing={1}>
+          <PresetButton disabled={!canUpload} />
+        </BottomRightActions>
       </UploadBox>
+      <CharacterDrawer />
       <InfoResolver data={characterData} />
     </>
   );

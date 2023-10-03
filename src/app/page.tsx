@@ -24,11 +24,11 @@ export default function Home() {
           <Info />
           <Typography variant="h5">角色動作</Typography>
           <div className="mt-4 pl-4">
-            <CharacterActionList />
+            {/* <CharacterActionList /> */}
           </div>
           <Typography variant="h5">染色列表</Typography>
           <div className="px-4">
-            <CharacterHue />
+            {/* <CharacterHue /> */}
           </div>
         </Container>
       </main>

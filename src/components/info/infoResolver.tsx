@@ -1,6 +1,6 @@
 import { useEffect, memo } from 'react';
 
-import { useSetRecoilState } from 'recoil';
+import { useSetRecoilState, useRecoilValue } from 'recoil';
 import { characterItemsSelector, characterItemsLoadStatusSelector, LoadStatus } from '@/store/characterItems';
 import { characterDataAtom } from '@/store/character';
 
@@ -10,14 +10,10 @@ import type { IRenderRequest } from 'maplestory';
 function getIsDyeableFromInfo(info: any) {
   return !!((info.royalSpecial && info.royalSpecial.value === 1) || (info.colorvar && info.colorvar.value === 1));
 }
-
-interface InfoResolverProps {
-  data: CharacterData | null;
-}
-const InfoResolver = ({ data }: InfoResolverProps) => {
+const InfoResolver = () => {
+  const data = useRecoilValue(characterDataAtom);
   const setCharacterItems = useSetRecoilState(characterItemsSelector);
   const setItemsLoadStatusLoaded = useSetRecoilState(characterItemsLoadStatusSelector);
-  const setCharacterData = useSetRecoilState(characterDataAtom);
   useEffect(() => {
     if (data) {
       setItemsLoadStatusLoaded(LoadStatus.Loading);
@@ -36,8 +32,8 @@ const InfoResolver = ({ data }: InfoResolverProps) => {
               icon: `https://maplestory.io/api/${item.region}/${item.version}/item/${item.id}/icon`,
             }))
             .filter(({ id }) => !idNeedFiltered.includes(id));
+          /* this also set loadstatus to Loaded */
           setCharacterItems(pairs);
-          setCharacterData(data);
         });
       }, 0);
     }

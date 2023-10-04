@@ -2,7 +2,8 @@
 import { useCallback, useState } from 'react';
 import { styled } from '@mui/material/styles';
 
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { characterDataAtom } from '@/store/character';
 import { canUploadCharacterSelector } from '@/store/selector';
 
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
@@ -66,7 +67,7 @@ const BottomRightActions = styled(Stack)(({ theme }) => ({
 }));
 
 function CharacterUpload() {
-  const [characterData, setCharacterData] = useState<any>(null);
+  const setCharacterData = useSetRecoilState(characterDataAtom);
   const canUpload = useRecoilValue(canUploadCharacterSelector);
   const onDrop = useCallback(
     (files: FileList) => {
@@ -105,7 +106,7 @@ function CharacterUpload() {
         </BottomRightActions>
       </UploadBox>
       <CharacterDrawer />
-      <InfoResolver data={characterData} />
+      <InfoResolver />
     </>
   );
 }

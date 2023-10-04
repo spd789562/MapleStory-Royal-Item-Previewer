@@ -9,38 +9,7 @@ import { canLoadCharacterSelector } from './selector';
 
 export const characterDataAtom = atom<CharacterData | undefined>({
   key: 'characterData',
-  default: {
-    type: 'character',
-    action: CharacterAction.Alert,
-    emotion: 'default',
-    skin: 2000,
-    zoom: 1,
-    frame: 0,
-    selectedItems: {
-      Body: {
-        name: 'Blushing Rose Hue (Body)',
-        id: 2016,
-        region: 'TWMS',
-        version: '253',
-      },
-      Head: {
-        name: 'Blushing Rose Hue (Head)',
-        id: 12016,
-        region: 'TWMS',
-        version: '253',
-      },
-    },
-    visible: true,
-    position: {
-      x: 0,
-      y: 0,
-    },
-    fhSnap: true,
-    flipX: false,
-    name: '',
-    includeBackground: true,
-    id: new Date().getTime(),
-  },
+  default: undefined,
   effects: [
     ({ onSet }) => {
       onSet((newCharacterData) => {

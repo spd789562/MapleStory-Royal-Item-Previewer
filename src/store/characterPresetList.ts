@@ -4,6 +4,10 @@ import type { CharacterData } from '@/utils/maplestory';
 
 const gistUrl = 'https://api.github.com/gists/15b16123b9d980dfd72a1df91313d53f';
 
+export interface PresetCharacterData extends CharacterData {
+  description: string;
+}
+
 const getCharacterPresetList = async () => {
   const gistData = await fetch(gistUrl).then((response) => response.json());
   const files = Object.values(gistData.files) as any[];
@@ -19,11 +23,11 @@ const getCharacterPresetList = async () => {
         return null;
       }
     })
-    .filter((file) => file !== null) as CharacterData[];
+    .filter((file) => file !== null) as PresetCharacterData[];
   return jsonFiles;
 };
 
-export const characterPresetListAtom = atom<CharacterData[]>({
+export const characterPresetListAtom = atom<PresetCharacterData[]>({
   key: 'charaterPresetList',
   default: getCharacterPresetList(),
 });

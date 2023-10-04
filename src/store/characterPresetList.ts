@@ -1,11 +1,17 @@
 'use client';
-import { atom, selector, RecoilLoadable, Loadable } from 'recoil';
+import { atom } from 'recoil';
 import type { CharacterData } from '@/utils/maplestory';
 
 const gistUrl = 'https://api.github.com/gists/15b16123b9d980dfd72a1df91313d53f';
 
 export interface PresetCharacterData extends CharacterData {
   description: string;
+}
+
+export interface PresetData {
+  url: string;
+  updateAt: string;
+  characters: PresetCharacterData[];
 }
 
 const getCharacterPresetList = async () => {
@@ -24,10 +30,14 @@ const getCharacterPresetList = async () => {
       }
     })
     .filter((file) => file !== null) as PresetCharacterData[];
-  return jsonFiles;
+  return {
+    url: gistData.html_url,
+    updateAt: gistData.updated_at,
+    characters: jsonFiles,
+  };
 };
 
-export const characterPresetListAtom = atom<PresetCharacterData[]>({
+export const characterPresetListAtom = atom<PresetData>({
   key: 'charaterPresetList',
   default: getCharacterPresetList(),
 });

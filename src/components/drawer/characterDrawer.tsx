@@ -14,6 +14,7 @@ const PresetList = dynamic(() => import('@/components/preset/presetList'), {
   ssr: false,
   loading: () => (
     <Stack spacing={2} p={2}>
+      <Skeleton variant="rounded" height={40} />
       <Skeleton variant="rounded" height={110} />
       <Skeleton variant="rounded" height={110} />
       <Skeleton variant="rounded" height={110} />

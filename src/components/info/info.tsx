@@ -8,6 +8,7 @@ import Paper from '@mui/material/Paper';
 import CharacterUpload from '@/components/characterUpload';
 import ItemInfoList from '@/components/info/itemInfoList';
 import CurrentCharacter from '@/components/character/currentCharacter';
+import ResetCharacterButton from '@/components/info/resetCharacterButton';
 
 function CharacterInfo() {
   const isLoaded = useRecoilValue(isCharacterItemsLoadedSelector);
@@ -32,6 +33,9 @@ function CharacterInfo() {
               <CurrentCharacter />
             </Box>
           </Paper>
+          <Box mt={2}>
+            <ResetCharacterButton />
+          </Box>
         </Grid>
       )}
       <Grid item xs={12} md={8}>

@@ -1,5 +1,6 @@
 'use client';
 import { atom, selector, AtomEffect, DefaultValue } from 'recoil';
+import { characterPresetIdListSelector } from './characterPresetList';
 import type { CharacterData } from '@/utils/maplestory';
 
 const localStorageKey = 'maplestory:characterHistory';
@@ -36,10 +37,20 @@ export const appendUploadCharacterHistory = selector<HistoryCharacterData>({
   key: 'appendUploadCharacterHistory',
   get: ({ get }) => ({}) as HistoryCharacterData,
   set: ({ set, get }, newValue) => {
-    set(
-      uploadCharacterHistoryAtom,
-      newValue instanceof DefaultValue ? newValue : (prevValue) => [...prevValue, newValue],
-    );
+    if (newValue instanceof DefaultValue) {
+      set(uploadCharacterHistoryAtom, newValue);
+      return;
+    }
+    const presetIds = get(characterPresetIdListSelector);
+    set(uploadCharacterHistoryAtom, (prevValue) => {
+      if (newValue.id && presetIds.includes(newValue.id)) {
+        return prevValue;
+      }
+      if (newValue.timestamp && prevValue.some((character) => character.timestamp === newValue.timestamp)) {
+        return prevValue;
+      }
+      return [...prevValue, newValue];
+    });
   },
 });
 

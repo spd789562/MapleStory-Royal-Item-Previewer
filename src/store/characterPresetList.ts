@@ -1,5 +1,5 @@
 'use client';
-import { atom } from 'recoil';
+import { atom, selector } from 'recoil';
 import type { CharacterData } from '@/utils/maplestory';
 
 const gistUrl = 'https://api.github.com/gists/15b16123b9d980dfd72a1df91313d53f';
@@ -44,4 +44,12 @@ const getCharacterPresetList = async () => {
 export const characterPresetListAtom = atom<PresetData>({
   key: 'charaterPresetList',
   default: getCharacterPresetList(),
+});
+
+export const characterPresetIdListSelector = selector<number[]>({
+  key: 'characterPresetIdList',
+  get: ({ get }) => {
+    const presetList = get(characterPresetListAtom);
+    return presetList.characters.map((character) => character.id || 0);
+  },
 });

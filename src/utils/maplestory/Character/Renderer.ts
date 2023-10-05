@@ -10,6 +10,7 @@ import type { IRenderPlanOverrides } from './IRenderPlanOverrides';
 import { AnimatedRenderPlan } from './AnimatedRenderPlan';
 import type { IGenerateRenderPlans } from './IGenerateRenderPlans';
 import type { IGenerateMaxFrames } from './ICalculateMaxFrames';
+import { asyncRequestIdleCallback } from '@/utils/requestIdleCallback';
 
 export default class CharacterRenderer implements IGenerateRenderPlans, IGenerateMaxFrames {
   private itemUtility: ItemUtilities;
@@ -117,10 +118,12 @@ export default class CharacterRenderer implements IGenerateRenderPlans, IGenerat
     const imgPath = await this.itemUtility.GetItemImgPath(item.region, item.version, item.id);
     if (!imgPath) return null;
 
-    const img = await this.dataFactory.resolve(item.region, item.version, imgPath);
+    const img = await asyncRequestIdleCallback(
+      async () => await this.dataFactory.resolve(item.region, item.version, imgPath),
+    );
     const isFace = this.itemUtility.IsFaceOrAccessoryId(item.id);
     const animation = isFace ? action || request.emotion || 'default' : action || item.action || request.action;
-    let animationNode = await img.resolve(animation);
+    let animationNode = await asyncRequestIdleCallback(async () => await img.resolve(animation));
 
     if (!animationNode) {
       // Is this a cash item weapon?
@@ -145,7 +148,7 @@ export default class CharacterRenderer implements IGenerateRenderPlans, IGenerat
           if (weaponType === 70) weaponType = 30;
         } // Fall-through back to weaponType = 30
 
-        animationNode = await img.resolve(`${weaponType}/${animation}`);
+        animationNode = await asyncRequestIdleCallback(async () => await img.resolve(`${weaponType}/${animation}`));
       } else {
         // Not sure what else could be happening here, better throw an error and fail early...
         throw new Error("Couldn't resolve to animation node for item");

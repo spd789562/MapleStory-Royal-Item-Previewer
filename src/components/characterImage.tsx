@@ -31,23 +31,21 @@ export interface CharacterImageRef {
   name?: string;
 }
 const CharacterImage = ({ data: characterData, name, forwardedRef }: CharacterImageProps) => {
-  const abortIdRef = useRef<number | null>(null);
   const parsedDataRef = useRef<ParsedData | null>(null);
   const [isLoaded, setIsLoaded] = useState(true);
   const [webp, setWebp] = useState<string | null>(null);
   const wepWorker = useWorker('node-webpmux');
 
   useEffect(() => {
+    let abortId = new Date().getTime();
     if (characterData && wepWorker) {
       setIsLoaded(false);
-      const abortId = new Date().getTime();
-      abortIdRef.current = abortId;
       parsedDataRef.current = null;
       getWebPFromCharacterData(characterData)
         .then((data) => {
-          if (abortIdRef.current !== abortId) return;
+          if (!abortId) return Promise.reject('cancel load');
 
-          return new Promise((resolve) => {
+          return new Promise((resolve, reject) => {
             const _id = Math.random().toString(36).substr(2, 9);
             const workerNeedFrames: WorkerCharacterFrame[] = data.frames.map((frame) => ({
               buffer: frame.buffer,
@@ -57,6 +55,7 @@ const CharacterImage = ({ data: characterData, name, forwardedRef }: CharacterIm
             }));
             const completeWepEvent = (e: MessageEvent) => {
               if (e.data.type === MessageType.GetWebPFromFrames && e.data._id === _id) {
+                if (!abortId) return reject('cancel load');
                 resolve({
                   ...data,
                   url: e.data.data.result,
@@ -76,11 +75,24 @@ const CharacterImage = ({ data: characterData, name, forwardedRef }: CharacterIm
           });
         })
         .then((data: any) => {
+          if (!abortId) return Promise.reject('cancel load');
           parsedDataRef.current = data;
           setWebp(data.url);
+        })
+        .catch((e) => {})
+        .finally(() => {
           setIsLoaded(true);
         });
     }
+    if (!characterData) {
+      setWebp(null);
+    }
+    return () => {
+      abortId = 0;
+      if (parsedDataRef.current) {
+        parsedDataRef.current = null;
+      }
+    };
   }, [characterData]);
 
   useImperativeHandle(

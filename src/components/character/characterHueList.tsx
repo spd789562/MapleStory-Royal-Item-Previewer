@@ -26,10 +26,12 @@ function CharacterHueList({ onChangeLoad, hueCount, forwardedRef }: CharacterHue
   const canLoadCharacter = useRecoilValue(canLoadCharacterSelector);
 
   useEffect(() => {
+    let abortId = new Date().getTime();
     if (characterData && canLoadCharacter) {
       onChangeLoad(true);
       getHueCharacterCanvasList(characterData, hueCount)
         .then((list) => {
+          if (!abortId) return Promise.reject('cancel load');
           canvasListRef.current = list;
           return Promise.all(
             list.map(
@@ -45,10 +47,21 @@ function CharacterHueList({ onChangeLoad, hueCount, forwardedRef }: CharacterHue
           );
         })
         .then((urls) => {
+          if (!abortId) return Promise.reject('cancel load');
           setCharacterCanvasList(urls);
+        })
+        .catch(() => {})
+        .finally(() => {
           onChangeLoad(false);
         });
     }
+    if (!characterData) {
+      setCharacterCanvasList([]);
+    }
+    return () => {
+      abortId = 0;
+      canvasListRef.current = [];
+    };
   }, [characterData, canLoadCharacter, onChangeLoad, hueCount]);
 
   useImperativeHandle(

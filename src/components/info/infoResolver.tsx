@@ -6,7 +6,7 @@ import { appendUploadCharacterHistory } from '@/store/uploadCharacterHistory';
 import { characterDataAtom } from '@/store/character';
 
 import Maplestory, { CharacterData } from '@/utils/maplestory';
-import { requestIdleCallback } from '@/utils/requestIdleCallback';
+import { requestIdleCallback, asyncRequestIdleCallback } from '@/utils/requestIdleCallback';
 import type { IRenderRequest } from 'maplestory';
 
 function getIsDyeableFromInfo(info: any) {
@@ -39,14 +39,14 @@ const InfoResolver = () => {
             /* this also set loadstatus to Loaded */
             setCharacterItems(pairs);
 
-            return plan.Render();
+            return asyncRequestIdleCallback(async () => await plan.Render());
           })
           .then((canvas) => {
             requestIdleCallback(() => {
               appendUploadCharacterHistoryState({
-                ...data,
-                previewUrl: canvas.toDataURL(),
                 timestamp: Date.now(),
+                previewUrl: canvas.toDataURL(),
+                ...data,
               });
             });
           });

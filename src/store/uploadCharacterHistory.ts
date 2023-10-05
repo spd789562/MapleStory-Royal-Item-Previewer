@@ -4,15 +4,21 @@ import type { CharacterData } from '@/utils/maplestory';
 
 const localStorageKey = 'maplestory:characterHistory';
 
-interface HistoryCharacterData extends CharacterData {
+export interface HistoryCharacterData extends CharacterData {
   timestamp: number;
+  previewUrl: string;
 }
 type UploadCharacterHistory = HistoryCharacterData[];
 
 const localStorageEffect: AtomEffect<UploadCharacterHistory> = ({ setSelf, onSet }) => {
   const savedValue = localStorage.getItem(localStorageKey);
-  if (savedValue != null) {
-    setSelf(JSON.parse(savedValue) as HistoryCharacterData[]);
+  if (savedValue) {
+    try {
+      const data = JSON.parse(savedValue) as HistoryCharacterData[];
+      setSelf(data);
+    } catch (e) {
+      /* data broken */
+    }
   }
 
   onSet((newValue) => {
@@ -32,27 +38,27 @@ export const appendUploadCharacterHistory = selector<HistoryCharacterData>({
   set: ({ set, get }, newValue) => {
     set(
       uploadCharacterHistoryAtom,
-      newValue instanceof DefaultValue ? newValue : [...get(uploadCharacterHistoryAtom), newValue],
+      newValue instanceof DefaultValue ? newValue : (prevValue) => [...prevValue, newValue],
     );
   },
 });
 
-export const removeUploadCharacterHistory = selector<HistoryCharacterData>({
+export const removeUploadCharacterHistory = selector<number>({
   key: 'removeUploadCharacterHistory',
-  get: ({ get }) => ({}) as HistoryCharacterData,
+  get: ({ get }) => 0,
   set: ({ set, get }, newValue) => {
     set(
       uploadCharacterHistoryAtom,
       newValue instanceof DefaultValue
         ? newValue
-        : get(uploadCharacterHistoryAtom).filter((character) => character.timestamp !== newValue.timestamp),
+        : (prevValue) => prevValue.filter((character) => character.timestamp !== newValue),
     );
   },
 });
 
-export const clearUploadCharacterHistory = selector<HistoryCharacterData>({
+export const clearUploadCharacterHistory = selector<null>({
   key: 'clearUploadCharacterHistory',
-  get: ({ get }) => ({}) as HistoryCharacterData,
+  get: ({ get }) => null,
   set: ({ set }) => {
     set(uploadCharacterHistoryAtom, []);
   },

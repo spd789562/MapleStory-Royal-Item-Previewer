@@ -14,7 +14,7 @@ const PreventMultiClick = {
 export default function useDrawerItem() {
   const setCharacterDrawerOpen = useSetRecoilState(characterDrawerOpenSelector);
   const setCharacterData = useSetRecoilState(characterDataAtom);
-  const updateCharaterData = useCallback((data: CharacterData) => {
+  const updateCharaterData: (data: CharacterData) => void = useCallback((data: CharacterData) => {
     const now = Date.now();
     if (now - PreventMultiClick.time < 500) {
       return;

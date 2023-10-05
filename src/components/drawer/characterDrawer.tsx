@@ -1,6 +1,6 @@
 'use client';
-import { useRecoilState } from 'recoil';
-import { characterDrawerOpenSelector } from '@/store/characterDrawer';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { characterDrawerOpenSelector, characterDrawerTabSelector, DrawerTab } from '@/store/characterDrawer';
 
 import Drawer from '@mui/material/Drawer';
 import Box from '@mui/material/Box';
@@ -23,9 +23,23 @@ const PresetList = dynamic(() => import('@/components/preset/presetList'), {
     </Stack>
   ),
 });
+const HistoryList = dynamic(() => import('@/components/history/historyList'), {
+  ssr: false,
+  loading: () => (
+    <Stack spacing={2} p={2}>
+      <Skeleton variant="rounded" height={32} />
+      <Skeleton variant="rounded" height={110} />
+      <Skeleton variant="rounded" height={110} />
+      <Skeleton variant="rounded" height={110} />
+      <Skeleton variant="rounded" height={110} />
+      <Skeleton variant="rounded" height={110} />
+    </Stack>
+  ),
+});
 
 function CharaterDrawer() {
   const [isDrawerOpen, setDrawerOpen] = useRecoilState(characterDrawerOpenSelector);
+  const drawerTab = useRecoilValue(characterDrawerTabSelector);
 
   const handleDrawerClose = () => {
     setDrawerOpen(false);
@@ -35,7 +49,8 @@ function CharaterDrawer() {
     <Drawer anchor="right" open={isDrawerOpen} onClose={handleDrawerClose}>
       <CharacterDrawerTab />
       <Box sx={{ width: '70vw', maxWidth: 345 }}>
-        <PresetList />
+        {drawerTab === DrawerTab.Preset && <PresetList />}
+        {drawerTab === DrawerTab.Upload && <HistoryList />}
       </Box>
     </Drawer>
   );

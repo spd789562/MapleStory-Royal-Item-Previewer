@@ -10,6 +10,7 @@ import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
 import CircleProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import PresetButton from '@/components/preset/presetButton';
+import HistoryButton from '@/components/history/historyButton';
 import CharacterDrawer from '@/components/drawer/characterDrawer';
 
 import useDropable from '@/utils/hooks/useDropable';
@@ -78,6 +79,9 @@ function CharacterUpload() {
         const result = e.target?.result;
         if (!result) return;
         const data = JSON.parse(result as string);
+        if (!data.name) {
+          data.name = file.name.replace(/\.json$/, '');
+        }
         setCharacterData(data);
       };
       reader.readAsText(file);
@@ -103,6 +107,7 @@ function CharacterUpload() {
         <span>點擊上傳或拖曳角色檔案至此</span>
         <BottomRightActions direction="row" spacing={1}>
           <PresetButton disabled={!canUpload} />
+          <HistoryButton disabled={!canUpload} />
         </BottomRightActions>
       </UploadBox>
       <CharacterDrawer />

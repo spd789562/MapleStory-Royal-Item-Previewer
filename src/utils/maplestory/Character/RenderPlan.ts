@@ -12,6 +12,7 @@ import { AnchorResults, BuildAnchors } from './AnchorMapBuilder';
 import { ComputeLocks, LockResults } from './LockResolver';
 import { CalcBounds, CalcFeetCenterPosition } from './PositionCalculator';
 import { InternalType } from './IItemEntry';
+import { asyncRequestIdleCallback } from '@/utils/requestIdleCallback';
 
 export class RenderPlan {
   framePairs: NodeItemPair[];
@@ -121,7 +122,9 @@ export class RenderPlan {
             realRenderLocation = piece.origin;
           }
 
-          const pieceTexture = await (piece.item.item.hue ? piece.GetHueCanvasTexture() : piece.GetCanvasTexture());
+          const pieceTexture = await asyncRequestIdleCallback(
+            async () => await (piece.item.item.hue ? piece.GetHueCanvasTexture() : piece.GetCanvasTexture()),
+          );
 
           ctx.save();
           const originalOptions = piece.item.item;

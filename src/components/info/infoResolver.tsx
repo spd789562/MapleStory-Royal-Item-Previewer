@@ -39,7 +39,7 @@ const InfoResolver = () => {
             /* this also set loadstatus to Loaded */
             setCharacterItems(pairs);
 
-            return asyncRequestIdleCallback(async () => await plan.Render());
+            return plan.Render();
           })
           .then((canvas) => {
             requestIdleCallback(() => {

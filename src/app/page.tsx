@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
 import Initializer from '@/components/initializer';
 import Info from '@/components/info/info';
 import CharacterActionList from '@/components/character/characterActionList';
-import CharacterHue from '@/components/character/characterHue';
+import CharacterHue from '@/components/characterHue/characterHue';
 
 export default function Home() {
   return (

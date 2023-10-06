@@ -85,3 +85,24 @@ export const characterItemsSelector = selector<CharacterItem[]>({
     );
   },
 });
+
+export const getDyeableIdsSelector = selector<number[]>({
+  key: 'getDyeableIds',
+  get: ({ get }) =>
+    get(characterItemsSelector)
+      .filter((item) => item.isDyeable)
+      .map((item) => item.id),
+});
+
+export const getUndyeableIdsSelector = selector<number[]>({
+  key: 'getUndyeableIds',
+  get: ({ get }) =>
+    get(characterItemsSelector)
+      .filter((item) => !item.isDyeable)
+      .map((item) => item.id),
+});
+
+export const hasAnyDyeableSelector = selector<boolean>({
+  key: 'hasAnyDyeable',
+  get: ({ get }) => get(getDyeableIdsSelector).length > 0,
+});

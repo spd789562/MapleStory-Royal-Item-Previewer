@@ -14,7 +14,7 @@ function DyeStatus({ isDyeable }: DyeStatusProps) {
   }
 
   return (
-    <Image src="/images/item_dye.png" alt="不可染色" width={18} height={18} style={{ filter: 'grayscale(100%)' }} />
+    <Image src="/images/item_dye.png" alt="不可染色" title="不可染色" width={18} height={18} style={{ filter: 'grayscale(100%)' }} />
   );
 }
 

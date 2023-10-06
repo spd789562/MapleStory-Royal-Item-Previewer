@@ -6,17 +6,19 @@ import Slider from '@mui/material/Slider';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import DownloadIcon from '@mui/icons-material/Download';
-import type { CharacterHueListRef } from '@/components/character/characterHueList';
+import NoDyeableAlert from '@/components/characterHue/noDyeableAlert';
+import type { CharacterHueListRef } from '@/components/characterHue/characterHueList';
 
 import { useRecoilValue } from 'recoil';
 import { canLoadCharacterSelector } from '@/store/selector';
+import { hasAnyDyeableSelector } from '@/store/characterItems';
 
 import { requestIdleCallback } from '@/utils/requestIdleCallback';
 import { debounce } from '@mui/material';
 import dynamic from 'next/dynamic';
 import download from 'downloadjs';
 
-const CharacterHueList = dynamic(() => import('@/components/character/characterHueList'), { ssr: false });
+const CharacterHueList = dynamic(() => import('@/components/characterHue/characterHueList'), { ssr: false });
 
 const sliderMarks = [
   {
@@ -46,8 +48,9 @@ function CharacterHue() {
   const [debounceHueCount, setDebounceHueCount] = useState(16);
   const [isLoading, setIsLoading] = useState(false);
   const hueCanvasListRef = useRef<CharacterHueListRef>(null);
+  const hasAnyDyeable = useRecoilValue(hasAnyDyeableSelector);
   const isCharacterLoaded = useRecoilValue(canLoadCharacterSelector);
-  const isDownloadDisabled = isLoading || !isCharacterLoaded;
+  const isDownloadDisabled = isLoading || !isCharacterLoaded || !hasAnyDyeable;
 
   const debouncedSetHueCount = useCallback(
     debounce((hueCount) => {
@@ -150,7 +153,11 @@ function CharacterHue() {
           sx={{ maxWidth: '300px' }}
         />
       </Stack>
-      <CharacterHueList forwardedRef={hueCanvasListRef} onChangeLoad={setIsLoading} hueCount={debounceHueCount} />
+      {hasAnyDyeable ? (
+        <CharacterHueList forwardedRef={hueCanvasListRef} onChangeLoad={setIsLoading} hueCount={debounceHueCount} />
+      ) : (
+        <NoDyeableAlert />
+      )}
     </div>
   );
 }

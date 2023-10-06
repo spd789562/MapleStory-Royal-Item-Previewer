@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useImperativeHandle } from 'react';
 import { useRecoilValue } from 'recoil';
 
 import { characterDataAtom } from '@/store/character';
-import { canLoadCharacterSelector } from '@/store/selector';
+import { getUndyeableIdsSelector } from '@/store/characterItems';
 
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -19,6 +19,7 @@ const HueGrid = styled(Box, {
   gap: theme.spacing(1),
   gridTemplateColumns: `repeat(auto-fit, minmax(${colWidth}px, 1fr))`,
   marginTop: theme.spacing(4),
+  paddingBottom: theme.spacing(4),
   justifyContent: 'center',
   /* make resizable and keep center */
   resize: 'horizontal',
@@ -47,13 +48,13 @@ function CharacterHueList({ onChangeLoad, hueCount, forwardedRef }: CharacterHue
   const [imgWidth, setImgWidth] = useState(100);
   const canvasListRef = useRef<HTMLCanvasElement[]>([]);
   const characterData = useRecoilValue(characterDataAtom);
-  const canLoadCharacter = useRecoilValue(canLoadCharacterSelector);
+  const undyeableIds = useRecoilValue(getUndyeableIdsSelector);
 
   useEffect(() => {
     let abortId = new Date().getTime();
-    if (characterData && canLoadCharacter) {
+    if (characterData) {
       onChangeLoad(true);
-      getHueCharacterCanvasList(characterData, hueCount)
+      getHueCharacterCanvasList(characterData, hueCount, undyeableIds)
         .then((list) => {
           if (!abortId) return Promise.reject('cancel load');
           canvasListRef.current = list;
@@ -89,7 +90,7 @@ function CharacterHueList({ onChangeLoad, hueCount, forwardedRef }: CharacterHue
       abortId = 0;
       canvasListRef.current = [];
     };
-  }, [characterData, canLoadCharacter, onChangeLoad, hueCount]);
+  }, [characterData, undyeableIds, onChangeLoad, hueCount]);
 
   useImperativeHandle(
     forwardedRef,

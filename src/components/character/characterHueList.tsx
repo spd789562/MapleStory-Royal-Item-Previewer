@@ -31,7 +31,7 @@ const HueGridItem = styled(Box)`
   display: flex;
   justify-content: center;
   align-items: center;
-  max-width: fit-content;
+  align-self: center;
 `;
 
 export interface CharacterHueListRef {

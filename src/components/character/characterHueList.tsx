@@ -5,11 +5,34 @@ import { useRecoilValue } from 'recoil';
 import { characterDataAtom } from '@/store/character';
 import { canLoadCharacterSelector } from '@/store/selector';
 
-import Grid from '@mui/material/Grid';
+import { styled } from '@mui/material/styles';
+import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 
 import { getHueCharacterCanvasList } from '@/utils/maplestory';
 import { requestIdleCallback } from '@/utils/requestIdleCallback';
+
+const HueGrid = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'colWidth',
+})<{ colWidth: number }>(({ theme, colWidth }) => ({
+  display: 'grid',
+  gap: theme.spacing(1),
+  gridTemplateColumns: `repeat(auto-fit, minmax(${colWidth}px, 1fr))`,
+  marginTop: theme.spacing(4),
+  justifyContent: 'center',
+  /* make resizable and keep center */
+  resize: 'horizontal',
+  minWidth: '40%',
+  overflow: 'auto',
+  marginLeft: 'auto',
+  marginRight: 'auto',
+}));
+const HueGridItem = styled(Box)`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: fit-content;
+`;
 
 export interface CharacterHueListRef {
   canvasList: HTMLCanvasElement[];
@@ -21,6 +44,7 @@ export interface CharacterHueListProps {
 }
 function CharacterHueList({ onChangeLoad, hueCount, forwardedRef }: CharacterHueListProps) {
   const [characterCanvasList, setCharacterCanvasList] = useState<string[]>([]);
+  const [imgWidth, setImgWidth] = useState(100);
   const canvasListRef = useRef<HTMLCanvasElement[]>([]);
   const characterData = useRecoilValue(characterDataAtom);
   const canLoadCharacter = useRecoilValue(canLoadCharacterSelector);
@@ -33,6 +57,9 @@ function CharacterHueList({ onChangeLoad, hueCount, forwardedRef }: CharacterHue
         .then((list) => {
           if (!abortId) return Promise.reject('cancel load');
           canvasListRef.current = list;
+          if (list.length > 0 && list[0].width) {
+            setImgWidth(list[0].width);
+          }
           return Promise.all(
             list.map(
               (canvas) =>
@@ -73,32 +100,19 @@ function CharacterHueList({ onChangeLoad, hueCount, forwardedRef }: CharacterHue
   );
 
   return (
-    <Grid
-      container
-      spacing={1}
-      display="grid"
-      gap={1}
-      gridTemplateColumns={{
-        xs: 'repeat(2, auto)',
-        sm: 'repeat(4, auto)',
-        md: 'repeat(6, auto)',
-        lg: hueCount > 40 ? 'repeat(8, auto)' : 'repeat(6, auto)',
-      }}
-      className="mt-2"
-      justifyContent="center"
-    >
+    <HueGrid colWidth={imgWidth}>
       {characterCanvasList.map((url, index) => (
-        <Grid key={index} item display="flex" justifyContent="center" alignItems="center">
-          <img src={url} />
-        </Grid>
+        <HueGridItem key={index}>
+          <img className="max-w-full" src={url} />
+        </HueGridItem>
       ))}
       {characterCanvasList.length === 0 &&
         new Array(hueCount).fill(0).map((_, index) => (
-          <Grid key={index} item>
-            <Skeleton variant="rectangular" width={80} height={110} animation={false} />
-          </Grid>
+          <HueGridItem key={index}>
+            <Skeleton variant="rectangular" width={100} height={110} animation={false} />
+          </HueGridItem>
         ))}
-    </Grid>
+    </HueGrid>
   );
 }
 

@@ -39,6 +39,9 @@ const createCharacterDataOtherActionSelector = (action: CharacterAction) =>
         action,
       };
     },
+    cachePolicy_UNSTABLE: {
+      eviction: 'most-recent',
+    },
   });
 
 export const characterDataStand1Selector = createCharacterDataOtherActionSelector(CharacterAction.Stand1);

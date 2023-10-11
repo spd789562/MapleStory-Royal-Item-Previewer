@@ -1,9 +1,10 @@
 'use client';
-import { useState, useEffect, useRef, useImperativeHandle } from 'react';
-import { useRecoilValue } from 'recoil';
+import { useState, useEffect, useRef } from 'react';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 
-import { characterDataAtom } from '@/store/character';
 import { getUndyeableIdsSelector } from '@/store/characterItems';
+import { characterHueCanvases, characterHueLoadingSelector, characterHueCountSelector } from '@/store/characterHue';
+import { hueChatacterSelector } from '@/store/selector';
 
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -38,26 +39,24 @@ const HueGridItem = styled(Box)`
 export interface CharacterHueListRef {
   canvasList: HTMLCanvasElement[];
 }
-export interface CharacterHueListProps {
-  onChangeLoad: (isLoading: boolean) => void;
-  hueCount: number;
-  forwardedRef?: React.Ref<CharacterHueListRef>;
-}
-function CharacterHueList({ onChangeLoad, hueCount, forwardedRef }: CharacterHueListProps) {
-  const [characterCanvasList, setCharacterCanvasList] = useState<string[]>([]);
+export interface CharacterHueListProps {}
+function CharacterHueList({}: CharacterHueListProps) {
+  const [characterUrlList, setCharacterUrlList] = useState<string[]>([]);
+  const hueCount = useRecoilValue(characterHueCountSelector);
+  const setCharacterHueCanvases = useSetRecoilState(characterHueCanvases);
+  const setIsLoading = useSetRecoilState(characterHueLoadingSelector);
   const [imgWidth, setImgWidth] = useState(100);
-  const canvasListRef = useRef<HTMLCanvasElement[]>([]);
-  const characterData = useRecoilValue(characterDataAtom);
+  const characterData = useRecoilValue(hueChatacterSelector);
   const undyeableIds = useRecoilValue(getUndyeableIdsSelector);
 
   useEffect(() => {
     let abortId = new Date().getTime();
     if (characterData) {
-      onChangeLoad(true);
+      setIsLoading(true);
       getHueCharacterCanvasList(characterData, hueCount, undyeableIds)
         .then((list) => {
           if (!abortId) return Promise.reject('cancel load');
-          canvasListRef.current = list;
+          setCharacterHueCanvases(list);
           if (list.length > 0 && list[0].width) {
             setImgWidth(list[0].width);
           }
@@ -76,38 +75,30 @@ function CharacterHueList({ onChangeLoad, hueCount, forwardedRef }: CharacterHue
         })
         .then((urls) => {
           if (!abortId) return Promise.reject('cancel load');
-          setCharacterCanvasList(urls);
+          setCharacterUrlList(urls);
         })
         .catch(() => {})
         .finally(() => {
-          onChangeLoad(false);
+          setIsLoading(false);
         });
     }
     if (!characterData) {
-      setCharacterCanvasList([]);
+      setCharacterUrlList([]);
     }
     return () => {
       abortId = 0;
-      canvasListRef.current = [];
+      setCharacterHueCanvases([]);
     };
-  }, [characterData, undyeableIds, onChangeLoad, hueCount]);
-
-  useImperativeHandle(
-    forwardedRef,
-    () => ({
-      canvasList: canvasListRef.current,
-    }),
-    [characterCanvasList],
-  );
+  }, [characterData, undyeableIds, hueCount]);
 
   return (
     <HueGrid colWidth={imgWidth}>
-      {characterCanvasList.map((url, index) => (
+      {characterUrlList.map((url, index) => (
         <HueGridItem key={index}>
           <img className="max-w-full" src={url} />
         </HueGridItem>
       ))}
-      {characterCanvasList.length === 0 &&
+      {characterUrlList.length === 0 &&
         new Array(hueCount).fill(0).map((_, index) => (
           <HueGridItem key={index}>
             <Skeleton variant="rectangular" width={100} height={110} animation={false} />

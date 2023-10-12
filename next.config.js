@@ -15,6 +15,19 @@ const nextConfig = {
             },
         ];
     },
+    async headers() {
+        return [
+            {
+                source: '/(.*)\\.wasm',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=31536000, immutable',
+                    },
+                ],
+            },
+        ];
+    },
     typescript: {
         // !! WARN !!
         // Dangerously allow production builds to successfully complete even if

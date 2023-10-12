@@ -19,6 +19,8 @@ interface VersionItem {
   HasImages: boolean;
 }
 
+const DefaultVersion = '253';
+
 export default function Initializer() {
   const setLibReady = useSetRecoilState(libReadyAtom);
   const setItemIdMap = useSetRecoilState(itemIdMapAtom);
@@ -71,6 +73,10 @@ export default function Initializer() {
           }
           localStorage.setItem('maplestory:lastCheck', Date.now().toString());
           resolve(latestVersion);
+        })
+        .catch(() => {
+          resolve(currentVersion || DefaultVersion);
+          localStorage.setItem('maplestory:version', currentVersion || DefaultVersion);
         });
     });
 

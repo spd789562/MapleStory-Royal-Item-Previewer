@@ -9,6 +9,7 @@ import Initializer from '@/components/initializer';
 import Info from '@/components/info/info';
 import CharacterActionList from '@/components/character/characterActionList';
 import CharacterHue from '@/components/characterHue/characterHue';
+import GlobalAlert from '@/components/globalAlert';
 
 export default function Home() {
   return (
@@ -32,6 +33,7 @@ export default function Home() {
           </div>
         </Container>
       </main>
+      <GlobalAlert />
     </>
   );
 }

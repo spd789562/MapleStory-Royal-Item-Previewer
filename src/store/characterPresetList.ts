@@ -31,6 +31,7 @@ const getCharacterPresetList = async () => {
         }
       })
       .filter((file) => file !== null) as PresetCharacterData[];
+    jsonFiles.sort((a, b) => (b.id || 0) - (a.id || 0));
     return {
       url: gistData.html_url,
       updateAt: gistData.updated_at,

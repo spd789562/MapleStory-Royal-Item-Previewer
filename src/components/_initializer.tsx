@@ -19,7 +19,7 @@ interface VersionItem {
   HasImages: boolean;
 }
 
-const DefaultVersion = '253';
+const DefaultStableVersion = '254';
 
 export default function Initializer() {
   const setLibReady = useSetRecoilState(libReadyAtom);
@@ -45,8 +45,8 @@ export default function Initializer() {
     });
 
     const versionCheckPromise = new Promise<string>((resolve) => {
-      const version = localStorage.getItem('maplestory:region') || '';
-      if (version !== 'TWMS') {
+      const region = localStorage.getItem('maplestory:region') || '';
+      if (region !== 'TWMS') {
         localStorage.setItem('maplestory:region', 'TWMS');
       }
       const _lastCheck = localStorage.getItem('maplestory:lastCheck') || '';
@@ -60,6 +60,7 @@ export default function Initializer() {
       }
 
       const versionJsonPath = `${Maplestory.DataFactory.endPoint}/versions.json`;
+      let _latestVersion = '';
       fetch(versionJsonPath)
         .then((res) => res.json())
         .then((versionList: VersionItem[]) => {
@@ -67,22 +68,26 @@ export default function Initializer() {
             .filter((version) => version.Region === 'TWMS' && version.IsReady)
             .map((version) => version.MapleVersionId)
             .sort();
-          const latestVersion = twmsVersions[twmsVersions.length - 1];
-          if (latestVersion !== currentVersion) {
-            localStorage.setItem('maplestory:version', latestVersion);
-          }
+          _latestVersion = twmsVersions[twmsVersions.length - 1];
           localStorage.setItem('maplestory:lastCheck', Date.now().toString());
-          resolve(latestVersion);
+          return Maplestory.DataFactory.getImageAB(region, _latestVersion, 'String/Eqp.img');
         })
-        .catch(() => {
-          resolve(currentVersion || DefaultVersion);
-          localStorage.setItem('maplestory:version', currentVersion || DefaultVersion);
+        .then(() => {
+          if (_latestVersion !== currentVersion) {
+            localStorage.setItem('maplestory:version', _latestVersion);
+          }
+          resolve(_latestVersion);
+        })
+        .catch((e) => {
+          console.log('[wz load][error] fall to load newest version, fallback to stable version');
+          resolve(currentVersion || DefaultStableVersion);
+          localStorage.setItem('maplestory:version', currentVersion || DefaultStableVersion);
         });
     });
 
-    const stringPromise = versionCheckPromise.then((latestVersion) =>
-      Maplestory.DataFactory.resolve('TWMS', latestVersion, 'String/Eqp.img/Eqp'),
-    );
+    const stringPromise = versionCheckPromise
+      .then((latestVersion) => Maplestory.DataFactory.resolve('TWMS', latestVersion, 'String/Eqp.img/Eqp'))
+      .catch();
 
     Promise.all([initWorkerPromise, stringPromise]).then(([_, stringData]) => {
       // console.log(stringData);

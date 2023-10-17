@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { libReadyAtom } from '@/store/libReady';
 import { itemIdMapAtom } from '@/store/itemIdMap';
+import { loadStateAtom } from '@/store/loadState';
 
 import Maplestory from '@/utils/maplestory';
 
@@ -19,14 +20,16 @@ interface VersionItem {
   HasImages: boolean;
 }
 
-const DefaultStableVersion = '254';
+const DefaultStableVersion = '255';
 
 export default function Initializer() {
   const setLibReady = useSetRecoilState(libReadyAtom);
   const setItemIdMap = useSetRecoilState(itemIdMapAtom);
+  const setLoadState = useSetRecoilState(loadStateAtom);
   const workers = useWorkerContext();
 
   useEffect(() => {
+    setLoadState({ name: '版本資訊' });
     const initWorkerPromise = new Promise<void>((resolve) => {
       const worker = new Worker(new URL('@/workers/node-webpmux.ts', import.meta.url));
       workers['node-webpmux'] = {
@@ -59,7 +62,7 @@ export default function Initializer() {
         return resolve(currentVersion);
       }
 
-      const versionJsonPath = `${Maplestory.DataFactory.endPoint}/versions.json`;
+      const versionJsonPath = `${Maplestory.DataFactory.endPoint}/versions.json?${Date.now().toString()}`;
       let _latestVersion = '';
       fetch(versionJsonPath)
         .then((res) => res.json())
@@ -70,7 +73,8 @@ export default function Initializer() {
             .sort();
           _latestVersion = twmsVersions[twmsVersions.length - 1];
           localStorage.setItem('maplestory:lastCheck', Date.now().toString());
-          return Maplestory.DataFactory.getImageAB(region, _latestVersion, 'String/Eqp.img');
+          setLoadState({ name: '版本資訊', progress: 0.3 });
+          return Maplestory.DataFactory.getImageAB('TWMS', _latestVersion, 'String/Eqp.img');
         })
         .then(() => {
           if (_latestVersion !== currentVersion) {
@@ -80,13 +84,16 @@ export default function Initializer() {
         })
         .catch((e) => {
           console.log('[wz load][error] fall to load newest version, fallback to stable version');
-          resolve(currentVersion || DefaultStableVersion);
           localStorage.setItem('maplestory:version', currentVersion || DefaultStableVersion);
+          resolve(currentVersion || DefaultStableVersion);
         });
     });
 
     const stringPromise = versionCheckPromise
-      .then((latestVersion) => Maplestory.DataFactory.resolve('TWMS', latestVersion, 'String/Eqp.img/Eqp'))
+      .then((latestVersion) => {
+        setLoadState({ name: '版本資訊', progress: 0.7 });
+        return Maplestory.DataFactory.resolve('TWMS', latestVersion, 'String/Eqp.img/Eqp');
+      })
       .catch();
 
     Promise.all([initWorkerPromise, stringPromise]).then(([_, stringData]) => {
@@ -103,6 +110,7 @@ export default function Initializer() {
           acc[cur.id] = cur.name;
           return acc;
         }, {} as Record<string, string>);
+      setLoadState({ name: '版本資訊', progress: 1 });
       setLibReady(true);
       setItemIdMap(allIdMap);
     });

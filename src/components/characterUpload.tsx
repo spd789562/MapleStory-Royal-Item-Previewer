@@ -14,6 +14,7 @@ import Link from '@mui/material/Link';
 import PresetButton from '@/components/preset/presetButton';
 import HistoryButton from '@/components/history/historyButton';
 import CharacterDrawer from '@/components/drawer/characterDrawer';
+import LoadState from '@/components/upload/loadState';
 
 import { isValidCharacter } from '@/utils/maplestory/validCharacter';
 
@@ -60,7 +61,7 @@ const UploadBox = styled('label', {
   cursor: disabled ? 'not-allowed' : 'pointer',
 }));
 
-const Loading = styled(CircleProgress)(({ theme }) => ({
+const TopLeftStatus = styled(Stack)(({ theme }) => ({
   position: 'absolute',
   top: theme.spacing(2),
   left: theme.spacing(2),
@@ -116,13 +117,18 @@ function CharacterUpload() {
   return (
     <>
       <UploadBox {...dropableProps} isDragging={isDragging} disabled={!canUpload}>
-        {!canUpload && <Loading size={32} />}
         <FileUploadOutlinedIcon />
         <HiddenInput type="file" accept="application/json" onChange={onFileChange} disabled={!canUpload} />
         <span>點擊上傳或拖曳角色檔案至此</span>
         <Link href={MapleStudioUrl} target="_blank" rel="noopener noreferrer" variant="body2">
           或至 MapleStory Studio 建立角色檔案並上傳
         </Link>
+        {!canUpload && (
+          <TopLeftStatus direction="row" spacing={1}>
+            <CircleProgress size={32} color="inherit" />
+            <LoadState />
+          </TopLeftStatus>
+        )}
         <BottomRightActions direction="row" spacing={1}>
           <PresetButton disabled={!canUpload} />
           <HistoryButton disabled={!canUpload} />

@@ -5,10 +5,15 @@ import { isCharacterItemsLoadedSelector, hasCharacterItemsSelector } from '@/sto
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import CharacterUpload from '@/components/characterUpload';
 import ItemInfoList from '@/components/info/itemInfoList';
 import CurrentCharacter from '@/components/character/currentCharacter';
 import ResetCharacterButton from '@/components/info/resetCharacterButton';
+import CharacterDrawer from '@/components/drawer/characterDrawer';
+import UploadBox from '@/components/upload/uploadBox';
+
+import dynamic from 'next/dynamic';
+
+const InfoResolver = dynamic(() => import('@/components/info/infoResolver'), { ssr: false });
 
 function CharacterInfo() {
   const isLoaded = useRecoilValue(isCharacterItemsLoadedSelector);
@@ -16,7 +21,12 @@ function CharacterInfo() {
 
   return (
     <Grid container spacing={2} ml={0} mb={2} width="100%">
-      {!hasItems && <CharacterUpload />}
+      {!hasItems && (
+        <>
+          <UploadBox />
+          <CharacterDrawer />
+        </>
+      )}
       {hasItems && (
         <Grid item xs={12} md={4}>
           <Paper>
@@ -41,6 +51,7 @@ function CharacterInfo() {
       <Grid item xs={12} md={8}>
         {isLoaded && hasItems && <ItemInfoList />}
       </Grid>
+      <InfoResolver />
     </Grid>
   );
 }

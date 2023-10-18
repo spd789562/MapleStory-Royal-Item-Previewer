@@ -8,10 +8,36 @@ import { loadStateAtom } from '@/store/loadState';
 
 import Maplestory, { CharacterData } from '@/utils/maplestory';
 import { requestIdleCallback, asyncRequestIdleCallback } from '@/utils/requestIdleCallback';
-import type { IRenderRequest } from 'maplestory';
+import type { IRenderRequest, IProperty } from 'maplestory';
 
-function getIsDyeableFromInfo(info: any) {
+function getIsDyeableFromInfo(info: Record<string, IProperty>) {
   return !!((info.royalSpecial && info.royalSpecial.value === 1) || (info.colorvar && info.colorvar.value === 1));
+}
+async function getIconInInfo(info: Record<string, IProperty>, node: IProperty) {
+  let iconData: ImageData | null = null;
+  try {
+    if (!info || !info.icon) {
+      const firstChild = node.children[0];
+      const resolved = await firstChild.resolve();
+      if (resolved.type === 'canvas') {
+        iconData = await resolved.GetValue();
+      }
+    } else {
+      iconData = await info.icon.GetValue();
+    }
+  } catch (e) {}
+  if (!iconData) {
+    console.info('[InfoResolver] no icon data');
+    return;
+  }
+
+  const canvas = document.createElement('canvas');
+  canvas.width = iconData.width;
+  canvas.height = iconData.height;
+  const ctx = canvas.getContext('2d')!;
+  ctx.putImageData(iconData, 0, 0);
+
+  return canvas.toDataURL();
 }
 
 function addRandomPresent(num: number) {
@@ -51,36 +77,33 @@ const InfoResolver = () => {
         return null;
       });
 
-      setTimeout(() => {
-        Maplestory.CharacterRenderer.GenerateRenderPlan(data as unknown as IRenderRequest)
-          .then((plan) => {
-            const idNeedFiltered = ['Head', 'Body'].map((key) => {
-              const item = data.selectedItems[key];
-              return item && item.id;
-            });
-            const pairs = plan.framePairs
-              .map(({ item, info }) => ({
-                id: item.id,
-                name: item.name || '',
-                part: info.part,
-                isDyeable: getIsDyeableFromInfo(info),
-                icon: `https://maplestory.io/api/${item.region}/${item.version}/item/${item.id}/icon`,
-              }))
-              .filter(({ id }) => !idNeedFiltered.includes(id));
-            /* this also set loadstatus to Loaded */
-            setCharacterItems(pairs);
-            Maplestory.Network.ProgressMonitorCallback = [];
-            return plan.Render();
-          })
-          .then((canvas) => {
-            requestIdleCallback(() => {
-              appendUploadCharacterHistoryState({
-                timestamp: Date.now(),
-                previewUrl: canvas.toDataURL(),
-                ...data,
-              });
-            });
+      setTimeout(async () => {
+        const plan = await Maplestory.CharacterRenderer.GenerateRenderPlan(data as unknown as IRenderRequest);
+        const idNeedFiltered = ['Head', 'Body'].map((key) => {
+          const item = data.selectedItems[key];
+          return item && item.id;
+        });
+        const filteredPairs = plan.framePairs.filter(({ item }) => !idNeedFiltered.includes(item.id));
+        const icons = await Promise.all(filteredPairs.map(({ node, info }) => getIconInInfo(info, node)));
+        const pairs = filteredPairs.map(({ item, info }, index) => ({
+          id: item.id,
+          name: item.name || '',
+          part: info.part,
+          isDyeable: getIsDyeableFromInfo(info),
+          icon: icons[index] || `https://maplestory.io/api/${item.region}/${item.version}/item/${item.id}/icon`,
+        }));
+        /* this also set loadstatus to Loaded */
+        setCharacterItems(pairs);
+        Maplestory.Network.ProgressMonitorCallback = [];
+
+        const previewCanvas = await plan.Render();
+        requestIdleCallback(() => {
+          appendUploadCharacterHistoryState({
+            timestamp: Date.now(),
+            previewUrl: previewCanvas.toDataURL(),
+            ...data,
           });
+        });
       }, 0);
     }
   }, [data]);

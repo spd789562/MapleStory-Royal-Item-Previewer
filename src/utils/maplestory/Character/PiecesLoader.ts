@@ -16,7 +16,7 @@ export async function LoadPieces(
 ): Promise<ILoadedPieces> {
   // Reduce down to the individual frame components (Body frame -> `Body`, `Arm`)
   const canvasPieces = framePairs.reduce((total, current) => {
-    total.push.apply(
+    current.node?.children && total.push.apply(
       total,
       current.node.children.map((child) => ({ child, item: current })),
     );

@@ -157,6 +157,11 @@ export default class CharacterRenderer implements IGenerateRenderPlans, IGenerat
 
     if (!animationNode) throw new Error('Invalid emotion/animation supplied');
 
+    /* some animationNode will use reference, need add extra resolve */
+    if (animationNode.children && animationNode.children.some((c) => !!c.value)) {
+      animationNode.children = await Promise.all(animationNode.children.map((child) => child.resolve()));
+    }
+
     return animationNode;
   }
 

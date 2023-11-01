@@ -11,7 +11,9 @@ import { requestIdleCallback, asyncRequestIdleCallback } from '@/utils/requestId
 import type { IRenderRequest, IProperty } from 'maplestory';
 
 function getIsDyeableFromInfo(info: Record<string, IProperty>) {
-  return !!((info.royalSpecial && info.royalSpecial.value === 1) || (info.colorvar && info.colorvar.value === 1));
+  const hasRoyalSpecial = info.royalSpecial && info.royalSpecial.value === 1;
+  const hasColorVar = info.colorvar && info.colorvar.value === 1
+  return !!hasColorVar;
 }
 async function getIconInInfo(info: Record<string, IProperty>, node: IProperty) {
   let iconData: ImageData | null = null;
